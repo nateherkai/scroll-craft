@@ -4,6 +4,24 @@ Dated notes on what changed in the skill and which build's finding drove it.
 Builds live in `OtherWorlds/Ultimate Websites/builds/`; each carries a
 `BUILD-REPORT.md`.
 
+## 2026-08-26: Linux/root Chromium fix in shoot.mjs
+
+Driven by a first Linux build (Debian 12, Node 24) where `chromium.launch()`
+crashed immediately when running as root without `--no-sandbox`.
+
+**Scripts, `scripts/shoot.mjs`**
+
+- `launch()` now auto-detects root (`process.getuid() === 0`) and passes
+  `["--no-sandbox", "--disable-setuid-sandbox"]` automatically. Opt-in
+  override via `SCROLLCRAFT_NO_SANDBOX=1` for non-root setups that still need
+  it. Safe on a private server; never set on shared machines.
+- No behaviour change on macOS or Windows (no `getuid`).
+
+**Finding that drove it:** shoot.mjs exited immediately with a Chromium crash
+log on Debian 12 as root. The harness never opened a page. Adding `--no-sandbox`
+resolved it. Auto-detection on uid=0 means Linux root builds work out of the box
+without any env override.
+
 ## 2026-08-23: iOS clip priming hardened; real-device diagnostic added
 
 Driven by a build whose hero clip sat frozen on the owner's actual iPhone
