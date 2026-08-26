@@ -67,7 +67,14 @@ if (!CHROME) {
 
 fs.mkdirSync(OUT, { recursive: true });
 
-const browser = await chromium.launch({ executablePath: CHROME, headless: true });
+// Linux/root: set SCROLLCRAFT_NO_SANDBOX=1 if Chromium refuses to start.
+// This is safe on a private server; never set it on a shared/production machine.
+const noSandbox = process.env.SCROLLCRAFT_NO_SANDBOX === "1" || process.getuid?.() === 0;
+const browser = await chromium.launch({
+  executablePath: CHROME,
+  headless: true,
+  args: noSandbox ? ["--no-sandbox", "--disable-setuid-sandbox"] : [],
+});
 const page = await browser.newPage({
   viewport: { width: W, height: H },
   deviceScaleFactor: 2,
