@@ -354,6 +354,17 @@ wrong, not the brief. Confirm on the sheet that the peak is the largest visual
 change and holds the most scroll room, and that the last screen resolves instead
 of fading to nothing.
 
+**And say what a green run does not cover: a real phone.** Headless Chrome
+cannot reproduce an iPhone's video decoder, autoplay policy, Low Power Mode,
+or touch scrolling; a build once shipped four green rounds while the hero clip
+sat frozen on the actual device. Mobile is a first-class target throughout,
+not a pass at the end: portrait phone clips, touch-tuned lerp, grown tap
+targets are all authored (see assets.md and verify.md). When any mobile defect
+is reported, deploy `references/device-diag.html` beside the site on the
+**first** round and let the device answer, rather than theorising from a
+machine that cannot reproduce the failure. The full iOS clip-lifecycle notes
+live in verify.md, "The phone is a different machine".
+
 Fix what you found and shoot it again. Report what you actually verified and
 what you did not.
 

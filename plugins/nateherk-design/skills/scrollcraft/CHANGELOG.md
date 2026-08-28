@@ -4,6 +4,46 @@ Dated notes on what changed in the skill and which build's finding drove it.
 Builds live in `OtherWorlds/Ultimate Websites/builds/`; each carries a
 `BUILD-REPORT.md`.
 
+## 2026-08-23: iOS clip priming hardened; real-device diagnostic added
+
+Driven by a build whose hero clip sat frozen on the owner's actual iPhone
+through four rounds of fixes while every headless probe reported it scrubbing.
+The working clip further down the same page was the clue; the only difference
+between them was being first.
+
+**Engine, `engine/scrollcraft.js`**
+
+- Each clip is primed at `loadedmetadata`, not only on a later gesture. A
+  muted inline `play()` needs no activation outside Low Power Mode; where it
+  is rejected, gesture listeners retry per clip until every clip is primed.
+  (The previous one-shot first-touch prime lost a race: the reader touches to
+  scroll while the hero is still downloading, and the shot was spent on a
+  sourceless element.)
+- `touchend` and `click` joined the prime listeners. The HTML spec's
+  activation-triggering events include `touchend` but not `touchstart`, so a
+  Low Power Mode phone gets a valid attempt when the finger lifts.
+- The priming flag releases on a 2s timer. iOS may leave a `play()` promise
+  pending forever, which jammed the retry permanently.
+- A seek stuck past 700ms is re-issued. `tick()` skips a clip while
+  `el.seeking` is true, so one hung seek froze that clip for the life of the
+  page through the guard meant to protect it.
+- The poster reveal fires on a 2.5s timeout as well as on `seeked`, so a clip
+  whose `seeked` never arrives cannot stay invisible forever.
+- `muted` and `playsInline` are set as properties at load time, not only as
+  attributes; iOS treats the two differently.
+
+**Docs and references**
+
+- `references/verify.md`: new sections "The phone is a different machine"
+  (what headless cannot see, what the engine now handles on iOS), "Ship the
+  diagnostic with the site", and "Ask what differs before asking what's
+  broken", plus three failure-table rows. Mobile named a first-class target.
+- `references/device-diag.html`: standalone real-device scrub diagnostic.
+  Suspect clip loaded two ways beside a known-good clip, MOVING / FROZEN
+  verdict per pane, prime results and distinct-frame counts on screen. Edit
+  its TESTS array and deploy beside the site on the first mobile report.
+- `SKILL.md` Step 5 now states the real-device gap explicitly.
+
 ## 2026-08-22: bespoke fixed-stage verification state
 
 Driven by the owner's cold-scroll finding on PHASE: "Nothing happens when I

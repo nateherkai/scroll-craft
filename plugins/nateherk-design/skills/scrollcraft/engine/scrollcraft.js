@@ -304,7 +304,7 @@
       var rec = {
         el: v, host: host || v,
         ready: false, loading: false, painted: false,
-        cur: 0, target: 0, live: false,
+        cur: 0, target: 0, live: false, stuckAt: 0,
         lerp: lerpRate(v) || LERP
       };
       v.muted = true; v.playsInline = true; v.preload = 'none';
@@ -602,16 +602,34 @@
             // replace its poster until the reader scrolled it off zero.
             try { V.el.currentTime = Math.max(V.target * (V.el.duration || 1), 0.001); } catch (e) {}
             read();
+            // Prime the decoder the moment the clip can be primed, without
+            // waiting for a gesture. A muted inline play() is allowed with no
+            // user activation on every platform except a restricted one (Low
+            // Power Mode, data saver), and there the rejection is harmless: the
+            // gesture listeners below retry on the next real touch.
+            primeClip(V);
           });
           // Reveal only once a real frame has painted. iOS keeps a seeked-but-
           // never-played muted video blank, so hiding the poster on metadata
           // alone flashes an empty stage.
-          V.el.addEventListener('seeked', function () {
+          var reveal = function () {
+            if (V.painted) return;
             V.painted = true;
             V.host.classList.add('sc-has-clip');
             V.el.classList.add('sc-has-clip');
-          }, { once: true });
+          };
+          V.el.addEventListener('seeked', reveal, { once: true });
+          // Never let visibility depend only on an event that may not arrive.
+          // On iOS a clip that has not been played can accept a seek and never
+          // fire 'seeked', which leaves the element at opacity 0 for the life of
+          // the page: the poster stays up, the act looks frozen, and every later
+          // act is fine because by then the reader has touched the screen and
+          // the decoder is live. Reveal on a timer as well. A stage that is
+          // briefly blank is a smaller fault than one that never shows its clip.
+          setTimeout(reveal, 2500);
           V.el.preload = 'auto';
+          V.el.muted = true;            // as a property, not only an attribute
+          V.el.playsInline = true;
           V.el.src = URL.createObjectURL(blob);
         })
         .catch(function () { V.loading = false; });
@@ -938,7 +956,19 @@
         if (!V.ready) continue;
         // Never queue a seek while the decoder is still resolving the last one.
         // On a phone a fast flick otherwise piles seeks up and freezes the clip.
-        if (V.el.seeking) continue;
+        // But a seek that never completes would freeze the clip for the life of
+        // the page through this very guard, so a seek stuck past 700ms is
+        // re-issued rather than waited on forever.
+        if (V.el.seeking) {
+          var nw = performance.now();
+          if (!V.stuckAt) V.stuckAt = nw;
+          else if (nw - V.stuckAt > 700) {
+            V.stuckAt = nw;
+            try { V.el.currentTime = V.el.currentTime + 0.001; } catch (e) {}
+          }
+          continue;
+        }
+        V.stuckAt = 0;
         // An offscreen clip that has already arrived stops costing anything.
         if (!V.live && Math.abs(V.cur - V.target) < 0.002) continue;
         V.cur += (V.target - V.cur) * (reduce ? 1 : V.lerp);
@@ -950,22 +980,71 @@
     }
 
     // iOS will not paint a muted video that has never been handed a user
-    // gesture, so a clip can be loaded, seeked and still show nothing. One
-    // play-pause on the first touch unlocks every clip on the page at once.
-    var primed = false;
-    function prime() {
-      if (primed) return;
-      primed = true;
-      playheads.forEach(function (V) {
+    // gesture, so a clip can be loaded, seeked and still show nothing.
+    //
+    // This used to fire once, on the first touch, across every playhead. That
+    // loses a race it cannot win. The first act's clip is still being fetched
+    // when the reader's first touch arrives (they touch the screen in order to
+    // scroll, and the clip is megabytes) so play() is called on a video with
+    // no source, does nothing, and the one shot is spent. Every later act loads
+    // long after that touch, with user activation already granted, and works
+    // without ever needing this. That is the exact shape of the bug: the hero
+    // frozen, everything below it fine.
+    //
+    // So: keep listening, prime each clip once it actually has a source, and
+    // stop only when they are all done. And force a seek afterwards, because a
+    // primed decoder still shows the stale frame until something asks it for a
+    // different time, and the deadband in tick() will not ask if the playhead is
+    // already where it should be.
+    var primedCount = 0;
+    function primeClip(V) {
+      // priming guards the retry: play() is a promise, and calling it again
+      // while the last one is unsettled produces "interrupted by pause" and can
+      // leave the element playing.
+      if (V.primed || V.priming || !V.el.src) return;
+      V.priming = true;
+      var done = function () {
+        V.priming = false;
+        if (!V.primed) { V.primed = true; primedCount++; }
+        try { V.el.pause(); } catch (e) {}
+        // repaint: nudge past the deadband so the next tick writes for real
         try {
-          var pr = V.el.play();
-          if (pr && pr.then) pr.then(function () { V.el.pause(); }, function () {});
-          else V.el.pause();
+          var dur = V.el.duration || 1;
+          V.cur = clamp(V.cur, 0, 0.999);
+          V.el.currentTime = clamp(V.cur * dur + 0.05, 0, dur * 0.999);
         } catch (e) {}
-      });
+      };
+      var fail = function () { V.priming = false; };
+      // A play() promise is allowed to stay pending forever (iOS does this to a
+      // video it has decided not to start). If that happened here, `priming`
+      // would jam and no gesture could ever retry, so the flag is released on a
+      // timer as well. A late resolution after the release still lands in
+      // done(), which is idempotent.
+      setTimeout(function () { if (V.priming) fail(); }, 2000);
+      var pr;
+      try { pr = V.el.play(); } catch (e) { fail(); return; }
+      if (pr && pr.then) pr.then(done, fail);
+      else done();
     }
-    addEventListener('touchstart', prime, { passive: true, once: true });
-    addEventListener('pointerdown', prime, { passive: true, once: true });
+    function prime() {
+      for (var i = 0; i < playheads.length; i++) primeClip(playheads[i]);
+      if (playheads.length && primedCount >= playheads.length) {
+        removeEventListener('touchstart', prime);
+        removeEventListener('touchend', prime);
+        removeEventListener('pointerdown', prime);
+        removeEventListener('click', prime);
+        removeEventListener('scroll', prime);
+      }
+    }
+    // touchend and click are here because the HTML spec's list of activation-
+    // triggering events includes touchend but NOT touchstart. A restricted
+    // device (Low Power Mode) that rejects the touchstart prime for lacking
+    // activation gets a second, valid chance the moment the finger lifts.
+    addEventListener('touchstart', prime, { passive: true });
+    addEventListener('touchend', prime, { passive: true });
+    addEventListener('pointerdown', prime, { passive: true });
+    addEventListener('click', prime, { passive: true });
+    addEventListener('scroll', prime, { passive: true });
 
     // ---- pointer devices --------------------------------------------------
     var tilts = [], magnets = [], spots = [];

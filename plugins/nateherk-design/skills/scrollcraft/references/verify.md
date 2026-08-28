@@ -229,7 +229,64 @@ only a ledger read with a single consumer settles it.
 Copy reflows and does not collide with the fixed bar. Confirm the phone encodes
 actually load. Check the portrait crop of every clip: a 16:9 move composed
 around left-hand negative space loses exactly that space at 9:16
-(see [assets.md](assets.md)).
+(see [assets.md](assets.md)). Mobile is a first-class target, not a check at
+the end: the phone clips are cut portrait, the lerp is retuned for touch, tap
+targets are grown, and every one of those is authored, not inherited.
+
+### The phone is a different machine
+
+Headless Chrome on the build box cannot reproduce an iPhone's video decoder,
+its autoplay policy, Low Power Mode, or touch scrolling. On one build every
+probe reported the hero clip scrubbing perfectly for **four consecutive
+rounds while the real phone showed a frozen frame**. A green harness run says
+the page is correct where the harness runs. It says nothing about iOS video.
+
+What iOS does to a scrub clip, and what the engine now handles for you:
+
+- iOS will not *paint* a muted video that has never been played. Seeks land,
+  `seeked` fires, and the picture stays on one frame. The decoder has to be
+  primed with one `play()`/`pause()`.
+- The engine primes each clip at `loadedmetadata` (a muted inline `play()`
+  needs no gesture outside Low Power Mode) and retries on `touchstart`,
+  `touchend`, `pointerdown`, `click` and `scroll`. `touchend` matters: the
+  HTML spec's activation-triggering events include `touchend` but **not**
+  `touchstart`, so a Low Power Mode phone that rejects the touchstart attempt
+  gets a valid one when the finger lifts.
+- A prime must be re-attemptable per clip. A one-shot prime on first touch
+  loses a race: the reader touches to scroll within the first second, while
+  the hero's megabytes are still downloading, and the shot is spent on a
+  sourceless element. The tell is exactly "the first clip is frozen and every
+  later one works".
+- iOS may leave a `play()` promise pending forever, and may leave `seeking`
+  true forever. Both were permanent silent freezes; the engine now releases
+  the priming flag on a timer and re-issues any seek stuck past 700ms. The
+  reveal also fires on a 2.5s timeout, never only on `seeked`.
+
+Do not re-implement any of that in page JS, and do not strip it when copying
+the engine. If a phone still shows a frozen clip, the cause is past what this
+machine can measure, which is what the next section is for.
+
+### Ship the diagnostic with the site
+
+You get one question per round with a real device, so make the round count.
+`references/device-diag.html` is a standalone page that scrubs the suspect
+clip two ways (blob URL, exactly as the engine loads it, and direct file src)
+beside a known-good clip, prints a MOVING / FROZEN verdict over each pane,
+and reports prime results, seek counts and distinct painted frames. Edit its
+`TESTS` array to point at the build's own clips, deploy it next to the site,
+and one screenshot from the phone isolates the layer: blob loading, the file,
+the device's decode policy, or the engine's lifecycle. Deploy it **with** the
+first mobile fix, not after the fourth.
+
+### Ask what differs before asking what's broken
+
+The debugging lesson that cost three wasted rounds: "desktop works, the phone
+does not" reads as a platform difference and invites platform theories
+(codecs, keyframes, resolution). **"One clip works and another does not, on
+the same device"** cannot be a platform difference. Before theorising, write
+down every way the working case differs from the broken one; the bug lives in
+that list. On the build above the list had one entry: the hero is first, so
+it loads while the first touch is being spent.
 
 **Keyboard.** Tab through. Focus order matches visual order, the focus ring is
 visible against every ground it crosses, and nothing reachable is parked at
@@ -293,6 +350,9 @@ until it was measured.
 | Every cue and reveal in a quiet act snapping 0 to 1 | A pinned act at `data-sc-span` ≤ 1, which is one pixel of travel. Minimum useful pinned span is ~1.2 |
 | A clip that scrubs beautifully, stops, and then slides up the page as a still photograph | The clip was mapped to the act's pinned travel, which is 0 through the entire entry slide and 1 through the entire exit slide. The engine now maps clip time across the stage's whole visible life by default. See devices.md §1 |
 | A custom fixed stage passing while its first screens do nothing | The page used `flow` markers, which are intentionally excluded from ordinary dead-scroll checks, but published no `data-sc-verify-state`. Report the actual rendered state and declare only genuine resolved holds |
+| The hero clip frozen on a real iPhone, later clips fine, every probe green | iOS never paints an unplayed muted video, and the one-shot gesture prime was spent while the hero was still downloading. The engine now primes per clip at `loadedmetadata` and retries on every gesture, including `touchend` |
+| A phone clip soft and stuttering while the same file is smooth on desktop | A landscape mobile encode in a portrait viewport: cover-fit decoded the full frame and threw three quarters of it away. Cut the phone clips portrait from the masters (see assets.md) |
+| Four rounds of mobile fixes verified green, phone still broken | Headless Chrome cannot reproduce the iOS decoder, Low Power Mode, or touch. Deploy `references/device-diag.html` beside the site on the first mobile report and let the phone answer |
 
 The first three are invisible to every check except looking at rendered output.
 That is the argument for this whole pass.
