@@ -1,22 +1,12 @@
 ---
 name: scrollcraft
 description: >
-  Build a premium, scroll-driven interactive landing page for any business:
-  a service company, a physical product, a food brand, a drink brand. Scroll
-  becomes the timeline. Video scrubs frame by frame under the wheel, sections
-  pin and advance, rails pan sideways, headlines assemble line by line, the page
-  ground shifts colour as you travel, and the pointer moves things that are not
-  scrolling. Interviews the human first (their vibe, their journey, one unbroken
-  world or distinct scenes, and what assets they already own), then picks a page
-  grammar and a signature move so no two builds share a skeleton, generates
-  photoreal assets through kie.ai or builds from the user's own footage and
-  photos, writes real semantic HTML on a design-system floor, and verifies the
-  result by screenshotting its own scroll. Use for
-  "scrollytelling", "scroll animation site", "a site where scrolling plays a
-  video", "Apple-style landing page", "3D scroll world", "interactive landing
-  page", "make my brand a scroll experience", "make it feel different", "this
-  looks like a template", "a unique scroll site", or any request for a site that
-  should feel like an experience rather than a document.
+  Use when designing or building premium scroll-driven landing pages,
+  scrollytelling experiences, Apple-style product pages, scroll-scrubbed video,
+  pinned or horizontal sections, animated headlines, interactive brand
+  journeys, or sites that must feel distinctive rather than templated. Applies
+  to service companies, products, food and drink brands, and projects using
+  generated imagery, existing photos, or footage.
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep, AskUserQuestion
 ---
 
