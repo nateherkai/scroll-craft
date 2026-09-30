@@ -11,6 +11,7 @@ Most AI website output fails in one of two directions. It is either well behaved
 
 [![MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
 [![Agent skill](https://img.shields.io/badge/agent-skill-3b82f6.svg)](plugins/nateherk-design/skills/scroll-craft/SKILL.md)
+[![skills.sh](https://img.shields.io/badge/skills.sh-scroll--craft-f5f5f5.svg)](https://skills.sh/nateherkai/scroll-craft/scroll-craft)
 [![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-d97757.svg)](https://code.claude.com/docs/en/plugins)
 
 ---
@@ -96,7 +97,23 @@ Then it writes a contact sheet, because a machine can prove a page works and can
 
 ## Install
 
-### Codex and other coding agents
+### skills.sh
+
+Install `scroll-craft` directly from this repository with the `skills` CLI:
+
+```bash
+npx skills add nateherkai/scroll-craft --skill scroll-craft
+```
+
+The CLI discovers the skill at
+[`plugins/nateherk-design/skills/scroll-craft/`](plugins/nateherk-design/skills/scroll-craft/)
+and installs it for a supported coding agent. To install it globally instead of
+in the current project, add `--global`.
+
+View the skill on
+[skills.sh/nateherkai/scroll-craft/scroll-craft](https://skills.sh/nateherkai/scroll-craft/scroll-craft).
+
+### Manual installation for Codex and other coding agents
 
 Clone or download this repository. The complete skill lives in
 [`plugins/nateherk-design/skills/scroll-craft/`](plugins/nateherk-design/skills/scroll-craft/).
