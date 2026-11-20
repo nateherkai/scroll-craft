@@ -1,0 +1,6 @@
+{
+  "name": "nateherk-design",
+  "version": "0.3.1",
+  "description": "Scroll Craft: build, visually verify, and package premium scroll-driven landing pages across Antigravity, Gemini CLI, Claude Code, Codex, and Squarespace.",
+  "contextFileName": "rules/GEMINI.md"
+}

@@ -12,7 +12,10 @@ happened to look at. So walk it mechanically.
 cd <build project>
 npm i playwright-core                       # once
 
-node <skill>/scripts/serve.mjs --root . --port 4500 &
+# Start serve.mjs as a background daemon (on Windows agent shells, launch with
+# daemon/background mode or a dedicated terminal rather than trailing `&`):
+node <skill>/scripts/serve.mjs --root . --port 4500
+
 node <skill>/scripts/shoot.mjs --url http://localhost:4500 --out lab/shots
 node <skill>/scripts/shoot.mjs --url http://localhost:4500 --out lab/mobile --width 390 --height 844
 node <skill>/scripts/shoot.mjs --url http://localhost:4500 --out lab/reduced --reduced-motion
@@ -374,12 +377,12 @@ reading, and `shoot.mjs` then gets a perfectly good `200` from **whatever else
 is on that port**. It walks that page, finds its worldflight, and writes a full
 contact sheet and a clean report for a site you did not build.
 
-Confirm the port is serving YOUR build before trusting any run:
+Confirm the port is serving YOUR build before trusting any run (works identically
+in PowerShell and Bash via Node):
 
 ```bash
-curl -s http://localhost:45XX | grep -o "<title>.*</title>"
-curl -s -o /dev/null -w "%{http_code}
-" http://localhost:45XX/assets/leg01.mp4
+node -e "fetch('http://localhost:4500').then(r=>r.text()).then(t=>console.log(t.match(/<title>.*?<\/title>/i)?.[0]))"
+node -e "fetch('http://localhost:4500/assets/leg01.mp4',{method:'HEAD'}).then(r=>console.log(r.status))"
 ```
 
 A 404 on an asset you know exists is the fastest tell.

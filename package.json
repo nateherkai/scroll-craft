@@ -1,0 +1,14 @@
+{
+  "name": "scroll-craft",
+  "version": "0.3.1",
+  "private": true,
+  "type": "module",
+  "description": "An agent skill and multi-agent plugin for building, verifying, and deploying premium scroll-driven websites.",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "doctor": "node plugins/nateherk-design/skills/scroll-craft/scripts/doctor.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

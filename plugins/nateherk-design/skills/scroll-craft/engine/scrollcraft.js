@@ -308,6 +308,11 @@
     var y = 0, needsLayout = true;
     var progressBar = root.querySelector('[data-sc-progress]');
     var docEl = document.documentElement;
+    var themeEl = (root && root.nodeType === 1 && root !== document.body && root !== docEl) ? root : docEl;
+    var loadMode = (root && root.nodeType === 1 && root.getAttribute('data-sc-load')) ||
+                   docEl.getAttribute('data-sc-load') ||
+                   opts.load ||
+                   'auto';
 
     // One rate for the page, overridable per clip. Read from the mount root, the
     // document element, or the option bag, in that order.
@@ -646,68 +651,110 @@
     }
 
     // ---- video ------------------------------------------------------------
+    function attachClipSrc(V, srcUrl, modeLabel, isBlob) {
+      if (scDead) {
+        if (isBlob) { try { URL.revokeObjectURL(srcUrl); } catch (e) {} }
+        return;
+      }
+      // Listeners and preload BEFORE src. Assigning src starts the load, so
+      // attaching afterwards and then calling load() restarts it and aborts
+      // the first request (visible as ERR_ABORTED on the blob URL).
+      V.el.addEventListener('loadedmetadata', function () {
+        if (scDead) return;
+        V.ready = true;
+        // Force one seek even when the target is already 0. The reveal is
+        // gated on a 'seeked' event, and the raf loop only seeks when the
+        // time actually needs to change, so a clip sitting at the very top
+        // of its act would never seek, never fire 'seeked', and never
+        // replace its poster until the reader scrolled it off zero.
+        try { V.el.currentTime = Math.max(V.target * (V.el.duration || 1), 0.001); } catch (e) {}
+        read();
+        // Prime the decoder the moment the clip can be primed, without
+        // waiting for a gesture. A muted inline play() is allowed with no
+        // user activation on every platform except a restricted one (Low
+        // Power Mode, data saver), and there the rejection is harmless: the
+        // gesture listeners below retry on the next real touch.
+        primeClip(V);
+      }, { once: true });
+      // Reveal only once a real frame has painted. iOS keeps a seeked-but-
+      // never-played muted video blank, so hiding the poster on metadata
+      // alone flashes an empty stage.
+      var reveal = function () {
+        if (scDead || V.painted) return;
+        V.painted = true;
+        V.host.classList.add('sc-has-clip');
+        V.el.classList.add('sc-has-clip');
+      };
+      V.el.addEventListener('seeked', reveal, { once: true });
+      // Never let visibility depend only on an event that may not arrive.
+      // On iOS a clip that has not been played can accept a seek and never
+      // fire 'seeked', which leaves the element at opacity 0 for the life of
+      // the page: the poster stays up, the act looks frozen, and every later
+      // act is fine because by then the reader has touched the screen and
+      // the decoder is live. Reveal on a timer as well. A stage that is
+      // briefly blank is a smaller fault than one that never shows its clip.
+      V.revealTimer = setTimeout(reveal, 2500);
+      V.el.addEventListener('error', function () {
+        if (V.revealTimer) { clearTimeout(V.revealTimer); V.revealTimer = 0; }
+        V.loading = false;
+      }, { once: true });
+      V.el.preload = 'auto';
+      V.el.muted = true;            // as a property, not only an attribute
+      V.el.playsInline = true;
+      if (modeLabel) V.el.setAttribute('data-sc-load-mode', modeLabel);
+      if (isBlob) V.objectURL = srcUrl;
+      V.el.src = srcUrl;
+    }
+
     function loadVideo(a) { loadClip(a.video); }
     function loadClip(V) {
       // Under reduced motion the clip is never fetched. The poster holds the
       // frame and the copy still cues, so the page reads without the decode.
-      if (reduce || !V || V.loading) return;
+      if (reduce || scDead || !V || V.loading) return;
       var src = V.el.getAttribute('data-sc-src') ||
                 (isMobile() && V.el.getAttribute('data-sc-src-mobile')) ||
                 V.el.currentSrc || V.el.src;
       if (isMobile() && V.el.getAttribute('data-sc-src-mobile')) src = V.el.getAttribute('data-sc-src-mobile');
       if (!src) return;
+      var mode = V.el.getAttribute('data-sc-load') || loadMode;
+      var isFileProto = typeof location !== 'undefined' && location.protocol === 'file:';
       V.loading = true;
-      fetch(src).then(function (r) { if (!r.ok) throw new Error(r.status); return r.blob(); })
+
+      // Direct mode skips fetch()->Blob for hosts whose redirects omit CORS
+      // headers (e.g. Squarespace /s/ -> static1.squarespace.com). Disabled on
+      // file:// so local verification still requires a real HTTP server.
+      if (mode === 'direct' && !isFileProto) {
+        attachClipSrc(V, src, 'direct', false);
+        return;
+      }
+
+      fetch(src).then(function (r) {
+        if (!r.ok) {
+          var httpErr = new Error('HTTP ' + r.status);
+          httpErr.httpStatus = r.status;
+          throw httpErr;
+        }
+        return r.blob();
+      })
         .then(function (blob) {
           // A fetch in flight when destroy() ran resolves anyway. Without this
           // it attaches loadedmetadata/seeked to a detached element, calls
           // read(), arms primeClip's 2s timer and assigns a blob URL nothing
           // will ever revoke, all after teardown reported success.
           if (scDead) return;   // the Blob is unreferenced from here and is collected
-          // Listeners and preload BEFORE src. Assigning src starts the load, so
-          // attaching afterwards and then calling load() restarts it and aborts
-          // the first request (visible as ERR_ABORTED on the blob URL).
-          V.el.addEventListener('loadedmetadata', function () {
-            V.ready = true;
-            // Force one seek even when the target is already 0. The reveal is
-            // gated on a 'seeked' event, and the raf loop only seeks when the
-            // time actually needs to change, so a clip sitting at the very top
-            // of its act would never seek, never fire 'seeked', and never
-            // replace its poster until the reader scrolled it off zero.
-            try { V.el.currentTime = Math.max(V.target * (V.el.duration || 1), 0.001); } catch (e) {}
-            read();
-            // Prime the decoder the moment the clip can be primed, without
-            // waiting for a gesture. A muted inline play() is allowed with no
-            // user activation on every platform except a restricted one (Low
-            // Power Mode, data saver), and there the rejection is harmless: the
-            // gesture listeners below retry on the next real touch.
-            primeClip(V);
-          });
-          // Reveal only once a real frame has painted. iOS keeps a seeked-but-
-          // never-played muted video blank, so hiding the poster on metadata
-          // alone flashes an empty stage.
-          var reveal = function () {
-            if (V.painted) return;
-            V.painted = true;
-            V.host.classList.add('sc-has-clip');
-            V.el.classList.add('sc-has-clip');
-          };
-          V.el.addEventListener('seeked', reveal, { once: true });
-          // Never let visibility depend only on an event that may not arrive.
-          // On iOS a clip that has not been played can accept a seek and never
-          // fire 'seeked', which leaves the element at opacity 0 for the life of
-          // the page: the poster stays up, the act looks frozen, and every later
-          // act is fine because by then the reader has touched the screen and
-          // the decoder is live. Reveal on a timer as well. A stage that is
-          // briefly blank is a smaller fault than one that never shows its clip.
-          setTimeout(reveal, 2500);
-          V.el.preload = 'auto';
-          V.el.muted = true;            // as a property, not only an attribute
-          V.el.playsInline = true;
-          V.objectURL = URL.createObjectURL(blob);
-          V.el.src = V.objectURL;
+          attachClipSrc(V, URL.createObjectURL(blob), 'blob', true);
         })
-        .catch(function () { V.loading = false; });
+        .catch(function (err) {
+          if (scDead) return;
+          // If fetch() failed due to CORS (no HTTP status) on an http(s) host
+          // in auto mode, fall back to direct <video src> streaming (which uses
+          // byte-range requests without requiring Access-Control-Allow-Origin).
+          if (mode === 'auto' && !isFileProto && !(err && err.httpStatus)) {
+            attachClipSrc(V, src, 'direct-fallback', false);
+            return;
+          }
+          V.loading = false;
+        });
     }
 
     // ---- image sequence ---------------------------------------------------
@@ -1009,7 +1056,7 @@
         if (D.act.raw >= 1) { driftA = D; driftB = D; driftT = 1; }
       }
       if (driftA) {
-        docEl.style.setProperty('--sc-canvas', mixColor(driftB.rgb, driftA.rgb, driftT));
+        themeEl.style.setProperty('--sc-canvas', mixColor(driftB.rgb, driftA.rgb, driftT));
       }
 
       if (progressBar) {
@@ -1256,11 +1303,14 @@
       // leaves the element holding the resource.
       for (var v = 0; v < playheads.length; v++) {
         var V = playheads[v];
+        if (V.revealTimer) { clearTimeout(V.revealTimer); V.revealTimer = 0; }
         try { V.el.pause(); } catch (e) {}
         if (V.objectURL) {
           try { V.el.removeAttribute('src'); V.el.load(); } catch (e) {}
           URL.revokeObjectURL(V.objectURL);
           V.objectURL = null;
+        } else if (V.el.hasAttribute('src')) {
+          try { V.el.removeAttribute('src'); V.el.load(); } catch (e) {}
         }
       }
       var at = global.ScrollCraft.instances.indexOf(api);

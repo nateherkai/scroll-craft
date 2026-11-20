@@ -4,6 +4,34 @@ Dated notes on what changed in the skill and which build's finding drove it.
 Builds live in `OtherWorlds/Ultimate Websites/builds/`; each carries a
 `BUILD-REPORT.md`.
 
+## Unreleased
+
+Antigravity, Gemini CLI, cross-platform Windows Node tooling, and Squarespace 7.1
+support (contributed by `@mjeanhudson-dev`, Refs #5):
+
+- **Google Antigravity & Gemini CLI plugin support:** Added
+  `plugins/nateherk-design/.antigravity-plugin/plugin.json`, `assets/icon.png`,
+  `rules/GEMINI.md`, and `gemini-extension.json`. Trimmed `SKILL.md` cleanly under
+  Antigravity's 24,000-byte loader cap with a concise frontmatter description and
+  agent-agnostic tool instructions.
+- **Cross-platform Windows Node tooling:** Added shared `scripts/ffmpeg.mjs`
+  (centralising full `ffmpeg` >200 filter lookup, fixing `shoot.mjs`'s
+  `process.env.HOME` WinGet lookup on Windows, preserving Edge `(x86)` and
+  `%LOCALAPPDATA%` Chrome paths, and detecting active agent environments) and
+  native `scripts/encode.mjs` supporting `desktop`, `mobile`, `portrait`,
+  `--crop-portrait`, and `--poster` WebP extraction without Bash.
+- **Server & engine updates:** Layered HTTP `206 Partial Content` byte-range
+  support, `HEAD`, dotfile blocking, `--host`, and `--cors` onto `serve.mjs`
+  while preserving `127.0.0.1` loopback binding, `--lan`, sibling-path guard,
+  and malformed-URL `400` handling. Added `data-sc-load="direct"`, automatic
+  non-HTTP CORS `direct-fallback`, and container-scoped `--sc-canvas` drift in
+  `scrollcraft.js` while preserving `mount()` / `destroy()` teardown.
+- **Squarespace 7.1 packaging & test suite:** Added `scripts/squarespace-pack.mjs`,
+  `references/squarespace.md`, `docs/antigravity.md`, `docs/squarespace.md`, and a
+  zero-dependency `node --test` suite (`tests/*.test.mjs`) covering manifests,
+  `encode.mjs`, `squarespace-pack.mjs`, `serve.mjs`, `mount()`/`destroy()`
+  teardown, and live headless Chrome verification.
+
 ## 2026-09-30: security and Windows fixes, release 0.3.1
 
 No change to how pages are planned, built, or animated.

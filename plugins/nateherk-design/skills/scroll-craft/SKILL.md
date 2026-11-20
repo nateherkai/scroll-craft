@@ -1,19 +1,12 @@
 ---
 name: scroll-craft
 description: >
-  Build premium scroll-driven landing pages for service, product, food, and
-  drink brands. Plan the visitor journey, page grammar, emotional peak, and
-  bespoke signature move. Create dimensional heroes with independent visual
-  planes, restrained motion, and separate mobile composition. Use supplied
-  photos and footage or generate photoreal assets through kie.ai, write semantic
-  HTML, and verify desktop, mobile, and reduced-motion scroll states visually.
-  Use for "scrollcraft", "scroll craft", "layered hero", "premium hero",
-  "cinematic hero", "scrollytelling", "scroll animation site", "a site where
-  scrolling plays a video", "Apple-style landing page", "3D scroll world",
-  "interactive landing page", "make my brand a scroll experience", "this looks
-  like a template", or requests for a distinctive website that feels like an
-  experience rather than a document.
-allowed-tools: Bash, Read, Write, Edit, Glob, Grep, AskUserQuestion
+  Build premium scroll-driven landing pages with dimensional hero layering,
+  distinct page grammars, feeling curves, and bespoke signature moves. Use
+  supplied photos/footage or kie.ai generation, write semantic HTML, verify
+  desktop, mobile, and reduced-motion states visually, and optionally package
+  for Squarespace. Use for "scrollcraft", "scroll craft", "layered hero",
+  "scrollytelling", "Apple-style landing page", or "3D scroll world".
 ---
 
 # scroll-craft
@@ -23,332 +16,207 @@ treats it as a timeline: the wheel is a scrubber, the page is a film with real
 text on top, and each section behaves differently enough that the visitor keeps
 going to find out what the next one does.
 
+**Cross-agent note:** Works in Antigravity, Gemini CLI, Claude Code, and Codex on
+Windows, macOS, and Linux. In every command below, `<skill>` means the folder
+containing this `SKILL.md`. All tooling runs through Node (`node <skill>/scripts/*.mjs`)
+with no Bash dependency required. Use your own native file, shell, question, and
+browser tools.
+
 **What you produce:** an interview brief, a page grammar, a customer-journey map,
 a feeling curve with one engineered peak, a scroll score, one signature move,
-generated assets, one real HTML page on a token-driven design floor, and a strip
-of screenshots proving it holds up at every scroll position.
+prepared assets, one semantic HTML page on a token-driven design floor, a strip
+of screenshots proving it holds up at every scroll position, and (when targeting
+Squarespace) a verified `/s/` + Code Injection / Embed deployment bundle.
 
 ## What this is not
 
-It is not "generate a flythrough and drop text on it." That approach produces
-one device applied to a whole page, and every site built that way is
-recognisable at a glance: same claymation diorama, same centred copy, same
-`01 / 06` counter, same "scroll to explore" nudge. Five sections that behave
-identically are one section shown five times.
+It is not "generate a flythrough and drop text on it." Five sections that behave
+identically are one section shown five times. Four spine rules prevent that:
 
-Four rules follow from that, and they are the spine of this skill:
-
-1. **Variety is the product.** A page uses at least four device families and
-   never the same device twice in a row. Read [references/devices.md](references/devices.md).
-2. **The world is photographic unless the brand is genuinely illustrated.**
-   Soft matte low-poly clay diorama is banned as a default. Read
+1. **Variety is the product.** Use at least four device families and never the
+   same device twice in a row. Read [references/devices.md](references/devices.md).
+2. **Photographic by default unless the brand is genuinely illustrated.** Soft
+   matte low-poly clay diorama is banned as a default. Read
    [references/worlds.md](references/worlds.md).
-3. **No continuous chain.** A single unbroken camera flight is the most
-   expensive and most fragile thing you can build, and it exists only to hide
-   cuts between scenes. Vary the device instead and the cut disappears for free,
-   because the visitor is not watching one film. Chain only when the brief is
-   literally "one continuous journey."
-4. **A different world is not a different page.** The device kit varies how a
-   page looks. Structure is a separate axis, and it has to be decided
-   deliberately or every build inherits the same skeleton. The first four builds
-   did exactly that. Read [references/uniqueness.md](references/uniqueness.md).
+3. **No continuous chain by default.** Vary devices so cuts disappear for free;
+   chain only when the brief is literally "one continuous journey."
+4. **A different world is not a different page.** Decide page structure
+   deliberately from all eight grammars. Read
+   [references/uniqueness.md](references/uniqueness.md).
 
-## Standing hero preference
+## Standing hero preference & approved collection standard
 
-**Dimensional layering is a baseline requirement for a premium marketing hero.**
-Plan independently moving background, subject, foreground, and atmospheric
-planes before requesting assets. A beautiful single background with text fades
-does not satisfy this preference. Depth must come from visible separation,
-occlusion, and controlled differences in movement, while the headline stays
-readable and the scene tells one clear story.
-
-Read [references/hero-depth.md](references/hero-depth.md) before planning the hero
-or generating its assets. It covers clean plates, genuine alpha cutouts, shared
-contact anchors, typography between planes, restrained scroll choreography,
-mobile art direction, and visual acceptance, with the approved Sonder example.
-Use the composition that fits the chosen grammar; do not repeat Sonder's scene
-or impose pinning on a grammar that forbids it. Honor explicit static or simpler
-directions, and keep depth in the static composition when motion is reduced.
-
-## Approved collection standard
-
-Read [references/approved-collection.md](references/approved-collection.md)
-before planning a premium marketing site. It distills the approved ten-site
-rebuild: real brand research, layer contracts, meaningful pointer/scroll depth,
-appropriate photographic or 3D rendering, distinct navigation and endings,
-useful interactions, mobile art direction, and evidence from the final package.
-These are execution principles and worked examples, not a reusable page skeleton.
+- **Dimensional hero layering** ([references/hero-depth.md](references/hero-depth.md)):
+  Plan independently moving background, subject, foreground, and atmospheric
+  planes before requesting assets. A single background with fading text does not
+  qualify. Honor explicit static/simpler briefs and keep depth in static reduced-motion
+  frames. Do not repeat example scenes or impose pinning on grammars that forbid it.
+- **Approved collection standard** ([references/approved-collection.md](references/approved-collection.md)):
+  Read before planning a premium marketing site. Distills the approved ten-site
+  rebuild: real brand research, layer contracts, meaningful pointer/scroll depth,
+  distinct nav and endings, useful controls, mobile art direction, and
+  final-package verification evidence.
 
 ## Step 0: The brief and creative authority
 
 **Establish the brief before generating anything.** Reuse answers and assets
-already provided. When the user explicitly delegates creative direction (for
-example, "use your judgment" or "I want to get out of your way"), write a
-`Self-authored under explicit creative delegation` brief and proceed. Cover the
-eight topics below, distinguish evidence from assumptions, and do not invent
-user quotations or force another interview/approval checkpoint.
+already provided. When the user explicitly delegates creative direction (e.g.
+"use your judgment"), write a `Self-authored under explicit creative delegation`
+brief and proceed without forcing another checkpoint. Otherwise interview for
+the missing decisions in one short pass (8 questions):
 
-Otherwise, interview for the missing decisions. Ask actual questions, record
-the answers, and avoid inferring an entire brand from its name.
+1. **Vibe in 3-5 words**, plus up to 3 references from any medium (film, album,
+   shop, magazine, game; not existing websites).
+2. **The scroll journey, section by section**, in their words.
+3. **The energy curve:** where it feels calm versus intense.
+4. **Feeling curve & peak:** stage-by-stage emotion and the ONE moment a visitor
+   should remember ([references/feel.md](references/feel.md)).
+5. **One thing this site should do that no site they have seen does** (seed of
+   the signature move; push past vague answers like "be memorable").
+6. **Distance from premium-minimal:** brutalist, maximalist, playful, retro,
+   dense, editorial, or premium-minimal ([references/uniqueness.md](references/uniqueness.md)).
+7. **One unbroken world, or distinct scenes?** Continuous worldflight
+   ([references/worldflight.md](references/worldflight.md)) vs. separate scenes/chapters.
+   Offer both plainly; neither is the default.
+8. **Existing assets:** photos, footage, product shots, brand kit. "Nothing" is
+   valid and selects generated imagery.
 
-The skill is a range instrument, not a house style. The human brings intent and
-whatever assets they own; the interview is where that turns into the right kind
-of page: one unbroken world, distinct scenes, printed chapters, a live surface.
-The skill can do any of them. The interview decides which.
+Write `<workspace>/builds/<name>/BRIEF.md` in the user's words before act
+planning. Minimum contents ([references/feel.md](references/feel.md)):
 
-Keep it short. Eight questions, asked in one pass:
+- All 8 topics (verbatim answers where supplied, labeled authored decisions where delegated).
+- **The feeling curve:** one line per act (emotion + what on screen causes it).
+- **The peak:** one sentence a visitor would tell a friend, plus which act owns it.
+- **Completed tell-someone sentence:** "It's the site where ___" (an experience, not a device).
+- Any authored silence so verification distinguishes it from dead scroll.
 
-1. **Vibe in three to five words**, plus up to three references from any medium.
-   A film, an album cover, a shop, a magazine, a game. Not "sites you like":
-   naming sites is how a page ends up looking like an existing site.
-2. **The scroll journey, section by section, in their words.** What the visitor
-   should hit first, what comes next, what the last thing is. Their sequence,
-   not a menu you offered.
-3. **The energy curve.** Where it should feel calm, where it should feel
-   intense. A page that is loud the whole way is as flat as one that is quiet
-   the whole way.
-4. **How should someone feel while scrolling, stage by stage, and what is the
-   ONE moment they should remember?** Energy is loudness. This is emotion, and
-   the two do not line up: on a loud page the quiet act can be the most intense.
-   The stage-by-stage answer becomes the feeling curve, the one moment becomes
-   the peak. Both are required in BRIEF.md. See [references/feel.md](references/feel.md).
-5. **One thing this site should do that no site they have seen does.** This is
-   the seed of the signature move. Push for a real answer; "be memorable" is not
-   one.
-6. **How far from premium-minimal they want to go.** Offer the range in
-   [uniqueness.md §5](references/uniqueness.md): brutalist, maximalist, playful,
-   retro, dense, editorial, premium-minimal. Their answer governs the aesthetic
-   family, not your taste.
-7. **One unbroken world, or distinct scenes?** Should the whole page feel like
-   one continuous place the scroll flies through (worldflight, see
-   [references/worldflight.md](references/worldflight.md)), or like separate
-   scenes, chapters, or cuts? This is the single biggest structural fork, and it
-   is their call, not a device you pick later. Offer both plainly; neither is
-   the default.
-8. **What assets do they already have?** Footage, photos, product shots, a
-   brand kit, clips of themselves. Real assets anchor the world and cut
-   generation cost; the answer decides what gets graded and encoded versus
-   generated. "Nothing" is a fine answer and means a fully generated world.
-
-Write the answers into `<workspace>/builds/<name>/BRIEF.md` before any act planning, in
-their words, not paraphrased into marketing prose. Everything downstream reads
-from that file.
-
-BRIEF.md must contain, at minimum:
-
-- The eight topics, with verbatim user answers where supplied and clearly labeled authored decisions where delegated.
-- **The feeling curve.** One line per act: the emotion, then what on screen
-  causes it. Written before the acts exist, added to as the score fills in.
-- **The peak.** The one moment, written as the sentence a visitor would say to
-  a friend, plus which act it lives in.
-- **The completed tell-someone sentence.** "It's the site where ___", filled
-  with an experience, not a device name.
-- Any authored silence, so the verification pass can tell it from dead scroll.
-
-[references/feel.md](references/feel.md) is the spec for all four.
-
-**If the human is genuinely unreachable** and the run is fully autonomous, write
-BRIEF.md yourself: answer all eight questions in the brand's voice, mark the file
-`Self-authored, not interviewed` at the top, and say so in the final report. A
-self-authored brief without delegation is a fallback. Explicit delegation above
-is a normal supported workflow and does not require the human to be unreachable.
+If the human is genuinely unreachable in a fully autonomous run, mark the file
+`Self-authored, not interviewed` and note it in the final report.
 
 ## Bootstrap
 
-Environment, not a stage of the work. Do it once the interview is answered and
-before Step 1.
-
-**Run the preflight rather than checking by hand.** It knows the failure modes
-that otherwise surface later as misleading errors, chiefly a stripped ffmpeg
-that reports a missing filter as a syntax error in your command:
+Run preflight once the brief is clear and before Step 1:
 
 ```bash
 node <skill>/scripts/doctor.mjs
+node <skill>/scripts/workspace.mjs --ensure
 ```
 
-It reports node, a full ffmpeg build, playwright and Chrome, the API key, and
-the resolved workspace. Required failures exit non-zero. Say plainly which items
-are missing rather than working around them silently.
+`doctor.mjs` checks Node 18+, a full `ffmpeg` build (>200 filters, catching
+stripped PATH builds), `ffprobe`, `libwebp`, `playwright-core`, installed Chrome/Edge,
+optional `KIE_AI_API_KEY`, and workspace resolution (`--json` outputs structured
+data). Report missing required items plainly instead of working around them.
 
-### The workspace
-
-Builds and the fingerprint registry live in one directory, and **it is resolved,
-never assumed**:
-
-```bash
-node <skill>/scripts/workspace.mjs --ensure     # prints it, creates it, seeds the registry
-```
-
-Resolution order, first hit wins:
-
+**Workspace resolution** (first hit wins):
 1. `SCROLLCRAFT_HOME`
-2. the nearest `.scrollcraft.json` walking up from the cwd, `{ "workspace": "..." }`
-3. `<project root>/scrollcraft`, where the project root is the nearest ancestor
-   holding a `.git`
+2. Nearest `.scrollcraft.json` walking up from cwd (`{ "workspace": "..." }`)
+3. `<project root>/scrollcraft` (nearest ancestor with `.git`, else cwd)
 
-So a build folder is `<workspace>/builds/<name>/` and the registry is
-`<workspace>/FINGERPRINTS.md`. The registry starts **empty**: the gate exists to
-stop you repeating yourself, so your first build has nothing to clear.
+Builds live in `<workspace>/builds/<name>/`; registry lives in
+`<workspace>/FINGERPRINTS.md` (starts empty).
 
-If you already keep builds somewhere else, drop a `.scrollcraft.json` at your
-project root pointing at it and nothing moves.
-
-### The rest
-
-1. `KIE_AI_API_KEY`, **only if you are generating assets.** A build from the
-   user's own photos and footage needs no key and no spend, and that is a
-   first-class route, not a fallback. Confirm balance with
-   `node <skill>/scripts/kie.mjs probe`. A still costs cents and a 5s clip costs
-   more; a six-act page with two clips is a small spend, not a large one.
-2. A brand kit if one exists (colours, logo, type, existing product shots). If
-   the brand has a folder in this repo, read it before generating anything, and
-   obey its hard rules. A brand that forbids invented numbers means no stat
-   counters, however good they look.
-
-Copy `engine/scrollcraft.js` and `engine/scrollcraft.css` into the build folder.
-Never edit the engine per-project; it is the mechanism. Theme it with tokens and
-write your own markup.
+**Optional generation & brand kits:**
+- `KIE_AI_API_KEY` is **only needed when generating imagery**. Building from
+  supplied photos/footage is a first-class zero-key route. Confirm credit with
+  `node <skill>/scripts/kie.mjs probe`.
+- Read any brand kit in the workspace before generating assets and obey its hard
+  rules (e.g. no invented statistics).
+- Copy `engine/scrollcraft.js` and `engine/scrollcraft.css` into the build
+  folder. Never edit the engine per project; theme with tokens and write semantic
+  markup.
 
 ## Step 1: The brief, journey first
 
-The subject is the user's to state. Ask it open, in plain prose, never as a
-fabricated multiple-choice list of industries: a made-up menu biases them and
-reads as you deciding their business for them.
+Ask only what Step 0 did not cover, in plain prose (never a fabricated industry menu):
 
-Step 0 already covered vibe, sequence, energy and range. Do not ask any of it
-again. Ask only what you cannot sensibly default:
+1. **What is this, and who is it for?** (1-2 sentences)
+2. **What must the visitor believe by the end?** (One sentence, not a feature list)
+3. **What does the visitor do next?** (One action, one label used everywhere)
+4. **What do you already have?** (Logo, palette, photos, footage, brand doc)
+5. **Art direction:** offer the worlds in [references/worlds.md](references/worlds.md)
+   or let them define their own.
 
-1. **What is this, and who is it for?** One or two sentences in their words.
-2. **What must the visitor believe by the end?** The single sentence the page
-   exists to install. Not a feature list. If they give three, make them pick.
-3. **What does the visitor do next?** One action. One label for it, used
-   everywhere on the page.
-4. **What do you already have?** Logo, palette, photography, product shots,
-   footage, a brand doc. Real assets beat generated ones every time.
-5. **Art direction**: offer the worlds in [references/worlds.md](references/worlds.md)
-   as a real choice, and say they can go their own way.
-
-Then write the **journey** before anything else: four to seven beats, each one a
-shift in what the visitor knows or feels.
-
-```
-1  Recognition   they see their own morning
-2  Tension       the cost of it, named plainly
-3  Turn          the thing that changes
-4  Substance     why it holds up
-5  Range         what they can choose
-6  Commitment    the one action
-```
-
-Beats are the spine. Sections serve beats; a section that serves no beat is cut,
-however nice the shot is. Resolve the journey before generating assets. Show it
-to the user when their decisions are needed; under explicit creative delegation,
-record the chosen journey and proceed within the authorized scope.
+Write the **journey** as 4-7 beats (e.g. Recognition -> Tension -> Turn ->
+Substance -> Range -> Commitment). Every section must serve a beat; cut any
+section that does not. Resolve the journey before generating assets.
 
 ## Step 2: Grammar, gate, then score
 
-Three things in order, and the first two come before any act planning. Full
-detail in [references/uniqueness.md](references/uniqueness.md).
+Execute in strict order before act planning (full spec in
+[references/uniqueness.md](references/uniqueness.md)):
 
-**Pick a grammar.** Start with the eight defined grammars and their constraints.
-A new grammar is allowed when its navigation, sequence, ending, and explicit
-bans describe a different structure; a new label alone earns no credit. Filmic one-shot is the one the first four
-builds all used, so choosing it again means saying in the report why the other
-seven did not fit the interview. Nav, hero and close all follow from the
-grammar; they are not decided separately.
+1. **Pick a grammar** from the eight defined grammars (or define one with
+   distinct nav, sequence, ending, and bans). Filmic one-shot requires explaining
+   why the other seven lost. Nav, hero, and close follow from the grammar.
+2. **Invent the signature move:** one bespoke interaction coded in the page off
+   `--sc-p` and custom `data-sc-*` attributes (not an engine edit or parameter tweak).
+3. **Run the fingerprint gate:** read `<workspace>/FINGERPRINTS.md` (path via
+   `node <skill>/scripts/workspace.mjs`). Differ from **every** existing row on
+   at least 4 of 6 dimensions (grammar, nav, hero device, act-sequence shape,
+   close pattern, signature move). If it fails, change the plan, not the log.
+4. **Write the feeling curve before the score table** ([references/feel.md](references/feel.md)):
+   curve first, acts second; no two adjacent acts share a feeling; name the peak
+   and give it the largest scroll room.
+5. **Score each beat** into a table (Beat | Device | Why this one), obeying the
+   chosen grammar's leans-on and bans list.
 
-**Invent the signature move.** One bespoke interaction that lives on this site
-alone, coded in the page, not a parameter change to a kit device. Question 5 of
-the interview is the seed. The engine stays untouched.
-
-**Run the fingerprint gate.** Read your registry at
-`<workspace>/FINGERPRINTS.md` (see **The workspace** in Bootstrap; run
-`node <skill>/scripts/workspace.mjs` to print the path). The planned build must differ
-from **every** existing row on at least 4 of 6 dimensions: grammar, nav
-treatment, hero device, act-sequence shape, close pattern, signature move. Four
-against each row individually. If it fails, change the plan, not the log.
-
-**Write the feeling curve before the score table.** One line per act: the
-emotion, then what causes it. Curve first, acts second, because a device chosen
-before the feeling is a device looking for a reason. Two adjacent acts with the
-same feeling means one is filler, and it is cheaper to cut it here than after
-the assets exist. Name the peak in the same pass and give it the largest span on
-the page. Full method in [references/feel.md](references/feel.md).
-
-Then assign each beat a device. Do it deliberately and write it down as a table:
+Example filmic score (right for one grammar only; check your grammar's bans):
 
 | Beat | Device | Why this one |
 |---|---|---|
-| Recognition | `scrub` | The camera moving under the reader's own hand is the strongest possible open |
-| Tension | `pin` + kinetic | Copy assembles line by line while the frame holds still |
-| Turn | `reveal` | A wipe is a change of state, which is what this beat is |
-| Substance | `scrub` (macro) | Texture at a scale the eye cannot get otherwise |
-| Range | `pan` | Lateral travel reads as "options", vertical reads as "argument" |
-| Commitment | `pin` + pointer | The page stops moving and starts responding |
+| Recognition | `scrub` | Camera under the reader's hand is the strongest open |
+| Tension | `pin` + kinetic | Copy assembles line by line while the frame holds |
+| Turn | `reveal` | Wipe expresses state change |
+| Substance | `scrub` (macro) | Close texture the eye cannot get otherwise |
+| Range | `pan` | Lateral travel reads as options |
+| Commitment | `pin` + pointer | Page stops scrolling and responds |
 
-That table is a **filmic** score. It is the right shape for one grammar and the
-wrong shape for the other seven, so read your grammar's leans-on and bans list
-before filling in a row.
+**Pre-build checks:**
+- Grammar bans hold without exception.
+- At least 4 distinct device families; never the same family twice in a row.
+- At most 2 `scrub` acts.
+- No two adjacent acts carry the same feeling.
+- One peak act owns the largest span by a visible margin; the act before it is quieter.
+- Every act earns its scroll span (8-14vh is a pacing reference for cinematic
+  pages, not a quota; keep editorial/gallery/live-surface pages shorter when done).
+- Avoid repeating the 6-7 acts / 13.6-13.8vh band (now a fingerprint dimension).
 
-Checks before you build:
+## Step 3: Prepare the assets
 
-- The grammar's bans hold. A grammar that forbids `pin` forbids it here too,
-  however well it would have worked.
-- Four or more distinct device families. Fewer means the page has one idea.
-- No device family twice in a row.
-- At most two `scrub` acts. Video is the heaviest thing on the page, and the
-  third one stops being a surprise.
-- No two adjacent acts carry the same feeling. If they do, one is filler.
-- One act is the peak and it has the largest span by a visible margin. The act
-  before it is quieter than it is.
-- Every act earns its scroll span. Eight to fourteen viewport-heights is a
-  pacing reference for longer cinematic pages, not a quota. Shorter editorial,
-  gallery, or working-surface grammars should stay short when the journey is
-  complete. Never add filler or empty pinning to hit a length target.
-- The act count and total length do not land in the 6-to-7 acts at 13.6-13.8vh
-  band that all four prior builds hit. That band is a fingerprint dimension now.
-
-## Step 3: Generate the assets
-
-Full pipeline, prompt scaffolds and model notes: [references/assets.md](references/assets.md).
-
-Short version:
+Full pipeline, aspect-ratio rules, real-footage grading, and portrait recipes:
+[references/assets.md](references/assets.md).
 
 ```bash
-node <skill>/scripts/kie.mjs still "<style preamble>\n\n<scene>" out/01-hero.png --ar 16:9 [--ref brand-can.png]
+node <skill>/scripts/kie.mjs still "<style preamble>\n\n<scene>" out/01-hero.png --ar 16:9 [--ref brand.png]
 node <skill>/scripts/kie.mjs shot  "<camera move>" out/01-hero.png out/01.mp4 --dur 5
-bash  <skill>/scripts/encode.sh out/01.mp4 assets/01.mp4
-bash  <skill>/scripts/encode.sh out/01.mp4 assets/01-m.mp4 mobile
+node <skill>/scripts/encode.mjs out/01.mp4 assets/01.mp4 desktop --poster assets/01-poster.webp
+node <skill>/scripts/encode.mjs out/01.mp4 assets/01-m.mp4 mobile
+node <skill>/scripts/encode.mjs out/01.mp4 assets/01-p.mp4 portrait --crop-portrait --poster assets/01-poster-p.webp
 ```
 
-Four things that decide whether this looks premium or generated:
+(`scripts/encode.sh` remains available for Unix/Bash shells; `encode.mjs` runs
+natively on Windows, macOS, and Linux and extracts matching WebP posters using
+the verified full `ffmpeg` build.)
 
-- **One style preamble, reused verbatim in every prompt.** This is what makes
-  six separate images look like one shoot. Write it once, never paraphrase it.
-- **Look at every asset before you use it.** Read the PNG. Generation is cheap
-  and rerolling is cheaper than shipping a bad frame.
-- **Encode for scrubbing, not playback.** `encode.sh` sets a dense GOP because
-  seeking walks from the previous keyframe. A normal web encode plays perfectly
-  and scrubs like mud.
-- **Layer the hero.** Cut the scene into planes that scroll at slightly
-  different rates, with the product parked between the mid and foreground
-  planes. Depth from differential movement is the cheapest premium signal on
-  the page. The recipe and its traps are under `parallax` in
-  [references/devices.md](references/devices.md).
+Four quality rules:
+- **One verbatim style preamble** across every generated prompt so separate
+  shots belong to one shoot.
+- **Inspect every generated PNG** before using it; reroll bad frames early.
+- **Encode for scrubbing, not playback:** dense GOP (`-g 8` desktop, `-g 4`
+  mobile/portrait), audio stripped, `+faststart`.
+- **Layer the hero:** cut independent planes with shared contact anchors and
+  differential parallax ([references/hero-depth.md](references/hero-depth.md),
+  [references/devices.md](references/devices.md)).
 
 ## Step 4: Build the page
 
-Write real HTML. Real `<h1>`, real `<p>`, real links, real reading order. The
-engine reads `data-sc-*` attributes off your markup and drives it; it never
-generates DOM. A runtime that builds the page from a config object is exactly
-why every site built on one looks the same.
+Write real semantic HTML (`<h1>`, `<p>`, links, real reading order). The engine
+reads `data-sc-*` attributes and never generates DOM.
 
-Start from `references/template.html`. The device patterns are in
-[references/devices.md](references/devices.md); the spacing, type, depth and
-colour rules are in [references/taste.md](references/taste.md). Read taste.md
-before writing markup, not after, and build without announcing the checklist.
-
-Theme by overriding tokens, six values and two fonts:
+Start from [references/template.html](references/template.html). Read
+[references/devices.md](references/devices.md) and
+[references/taste.md](references/taste.md) before writing markup. Theme by
+overriding six colour tokens and two font families in `:root`:
 
 ```css
 :root {
@@ -362,99 +230,100 @@ Theme by overriding tokens, six values and two fonts:
 
 ## Step 5: Verify by scrolling it
 
-Apply the final-source and deployment checks in
-[approved-collection.md §7](references/approved-collection.md#7-require-visual-and-functional-evidence-before-delivery).
-Use safe headless automation with native pointer lock/capture disabled in every
-context. Inspect actual pixels, phone compositions, and intermediate states;
-test useful controls, downloads, and form outcomes in the final package.
-
-Not optional, and not "it should work." A scroll page has no single state:
-every position is a different frame, and the failures live between the two you
-happened to look at. Full procedure: [references/verify.md](references/verify.md).
+Not optional. Apply
+[approved-collection.md §7](references/approved-collection.md#7-require-visual-and-functional-evidence-before-delivery)
+and [references/verify.md](references/verify.md). Disable native pointer lock in
+headless verification (`shoot.mjs` already does).
 
 ```bash
-cd <build project> && npm i playwright-core     # once
-node <skill>/scripts/serve.mjs --root . --port 4500 &
+cd <build project> && npm i playwright-core    # once
+# Launch serve.mjs as a background daemon (or separate terminal on Windows):
+node <skill>/scripts/serve.mjs --root . --port 4500
+
 node <skill>/scripts/shoot.mjs --url http://localhost:4500 --out lab/shots
 node <skill>/scripts/shoot.mjs --url http://localhost:4500 --out lab/mobile --width 390 --height 844
 node <skill>/scripts/shoot.mjs --url http://localhost:4500 --out lab/reduced --reduced-motion
 ```
 
-The harness walks each act at six positions, waits for the scrub video to
-actually settle, and reports **dead scroll**, **cues that never reach full
-opacity**, and **contrast measured on the composited page at the brightest
-frame under each line**. It writes a contact sheet.
+> **Windows shell tip:** Do not use trailing `&` in PowerShell or agent shells
+> that terminate detached child processes when a command exits. Start `serve.mjs`
+> in daemon/background mode or a dedicated terminal, verify the port serves your
+> build title/assets before trusting `shoot.mjs`, and stop it after verification.
 
-Then do the part the harness cannot: **read `sheet.png`.** It proves a clip
-advances; it cannot tell you the composition is good, the motion is smooth, or
-the page means anything. Also tab through for focus order.
+After the harness writes `report.json` and `sheet.png`:
+1. **Inspect `sheet.png`** (desktop, mobile, and reduced motion): check
+   composition, typography wrapping, contrast, and motion continuity, plus keyboard
+   tab focus order.
+2. **Run the feel check** ([references/feel.md](references/feel.md)): scroll cold,
+   name one emotion per act, then diff against `BRIEF.md`. Fix mismatches in the
+   page, confirm the peak owns the largest visual shift and scroll room, and
+   confirm the closing screen resolves and holds.
+3. **Report honestly what headless Chrome cannot prove: a real phone.** iOS
+   decoders, autoplay policies, Low Power Mode, and touch inertia require real
+   device checks. On any mobile report, deploy
+   [references/device-diag.html](references/device-diag.html) on the first round.
+   To open the page on a phone over Wi-Fi, start `serve.mjs` with `--lan` (by
+   default it binds to `127.0.0.1` only), and stop it when you are done: `--lan`
+   makes everything under `--root` readable by anyone on that network.
 
-**Then run the feel check** ([references/feel.md §6](references/feel.md)). Scroll
-the page cold, write one word per act for what you felt, and only then open
-BRIEF.md and diff it against the intended curve. Where they disagree the page is
-wrong, not the brief. Confirm on the sheet that the peak is the largest visual
-change and holds the most scroll room, and that the last screen resolves instead
-of fading to nothing.
+## Step 6 (Optional): Package and deploy to Squarespace
 
-**And say what a green run does not cover: a real phone.** Headless Chrome
-cannot reproduce an iPhone's video decoder, autoplay policy, Low Power Mode,
-or touch scrolling; a build once shipped four green rounds while the hero clip
-sat frozen on the actual device. Mobile is a first-class target throughout,
-not a pass at the end: portrait phone clips, touch-tuned lerp, grown tap
-targets are all authored (see assets.md and verify.md). When any mobile defect
-is reported, deploy `references/device-diag.html` beside the site on the
-**first** round and let the device answer, rather than theorising from a
-machine that cannot reproduce the failure. The full iOS clip-lifecycle notes
-live in verify.md, "The phone is a different machine". To open the page on a
-phone over Wi-Fi, start the server with `--lan` (by default it binds to this
-machine only), and stop it when you are done: `--lan` makes everything under
-`--root` readable by anyone on that network.
+When deploying to Squarespace 7.1 (including Squarespace-only `/s/` hosting),
+read [references/squarespace.md](references/squarespace.md) and run:
 
-Fix what you found and shoot it again. Report what you actually verified and
-what you did not.
+```bash
+node <skill>/scripts/squarespace-pack.mjs --in <workspace>/builds/<name> --site https://example.com
+```
+
+This stages flat `/s/` uploads in `upload-to-s/` (checking Squarespace's 20 MB
+per-file cap and hashing every file), rewrites asset URLs, enables CORS-free
+`data-sc-load="direct"` byte-range streaming for `/s/` -> `static1.squarespace.com`
+redirects, and emits:
+- `blank-page-head.html` + `blank-page-body.html` (full-bleed Blank Page takeover
+  with `body:not(.sqs-edit-mode-active)` editor protection)
+- `code-block-embed.html` (scoped `[data-sc-embed]` Fluid Engine Code Block with
+  sticky-preserving `overflow: visible` wrapper rules)
+- `iframe-embed.html` (responsive full-viewport iframe wrapper)
+- `manifest.json` (dual-mode upload/injection spec for manual paste, Squarespace
+  MCP when connected, or authenticated browser editor push against `/config/pages`)
 
 ## Hard rules
 
-Ship-blockers, not preferences. Each one is a thing that makes a page read as
-machine-made.
+Ship-blockers, not preferences:
 
 | Never | Instead |
 |---|---|
-| Clay diorama / low-poly / claymation as the default world | Photographic. See worlds.md |
+| Clay diorama / low-poly / claymation as default world | Photographic. See [references/worlds.md](references/worlds.md) |
 | A "scroll" cue, arrow, or animated mouse icon | Nothing. They are looking at the hero; they know |
 | `01 / 06` section counters | Delete them. Sequence is not information here |
-| An eyebrow above every section heading | At most one per three sections. The heading carries itself |
+| An eyebrow above every section heading | At most one per three sections |
 | Em dash anywhere visible | Period, comma, colon, or parentheses |
 | Centred copy in every act | Vary the anchor: lead, trail, centre, split |
 | The same device twice in a row | Score the journey properly in Step 2 |
-| Generating before the brief and creative authority are clear | Run Step 0. Record actual answers or explicitly delegated authored decisions in `BRIEF.md` |
-| A page with no engineered peak, or with three competing ones | One peak. It gets the asset budget, the silence before it, and the most scroll room. See feel.md §2 |
-| An ending that trails off, fades out, or just becomes a footer | The close resolves and holds. The last feeling is the one they carry |
-| Planning acts before the feeling curve exists | Curve first, devices second. See feel.md §1 |
-| Shipping without one bespoke signature move | Invent one. A recoloured spotlight or a retuned tilt is not one. See uniqueness.md §3 |
-| A build that clears fewer than 4 of 6 fingerprint dimensions against any existing row | Change the plan, not `FINGERPRINTS.md` |
-| Editing the engine to get a bespoke behaviour | Bespoke JS in the page, driven off `--sc-p` and your own `data-sc-*` |
-| Reaching for filmic one-shot because it is what the last build did | Pick from all eight grammars, and say why the other seven lost |
-| A full-frame dark overlay to fix contrast | A scrim only where the text sits |
-| Text baked into a generated image | Real markup, always. It is selectable, translatable and sharp |
-| Invented statistics in a counter | Only real numbers. No number, no counter |
-| `transition: all`, or animating width/height/top/left | `transform` and `opacity`; `clip-path` for wipes |
-| Gradient text, neon glow, zero-offset coloured halo shadows | Weight and size for emphasis; shadows with offset and blur |
-| Autoplaying audio, or any audio at all on a scrub clip | Strip the track. `encode.sh` already does |
-| Shipping without running Step 5 | Run Step 5 |
+| Generating before the brief and creative authority are clear | Run Step 0 and write `BRIEF.md` |
+| No engineered peak, or three competing peaks | One peak with the asset budget, prior silence, and largest span |
+| An ending that trails off, fades out, or just becomes a footer | The close resolves and holds |
+| Planning acts before the feeling curve exists | Curve first, devices second |
+| Shipping without one bespoke signature move | Invent one coded in the page; not a parameter tweak |
+| Clearing fewer than 4 of 6 fingerprint dimensions vs any row | Change the plan, not `FINGERPRINTS.md` |
+| Editing the engine per project for bespoke behaviour | Bespoke JS in the page off `--sc-p` and custom `data-sc-*` |
+| Defaulting to filmic one-shot out of habit | Pick from all eight grammars and explain why the other seven lost |
+| A full-frame dark overlay to fix contrast | A scrim only where text sits |
+| Text baked into a generated image | Real semantic HTML markup |
+| Invented statistics in a counter | Real numbers only; no number, no counter |
+| `transition: all`, or animating width/height/top/left | `transform`, `opacity`, and `clip-path` |
+| Gradient text, neon glow, zero-offset coloured halo shadows | Weight and size for emphasis; offset + blur shadows |
+| Autoplaying audio, or any audio track on a scrub clip | Strip audio (`encode.mjs` does this automatically) |
+| Shipping without running Step 5 | Run Step 5 and read `sheet.png` |
 
 ## Output
 
-The build folder, including `BRIEF.md`, then a short report: the grammar and why
-the other seven lost, the signature move, the fingerprint gate result against
-each existing row, the journey, the feeling curve and the peak, the feel-check
-diff (intended curve against felt curve, and what you changed), the score table
-(device per beat), what you
-generated, what you verified with screenshots, and anything you could not
-verify. Say if the brief was self-authored rather than interviewed. Give the
-local URL. Keep it brief; the page is the deliverable.
+Deliver the build folder (including `BRIEF.md`, and `squarespace/` if requested)
+plus a concise report: grammar chosen and why the other seven lost, signature
+move, fingerprint gate diff against each row, journey, feeling curve and peak,
+feel-check diff and fixes, score table, assets prepared, what you verified with
+screenshots, what you could not verify (real phone), whether the brief was
+self-authored, and the local preview URL.
 
-Then append the build's row to `<workspace>/FINGERPRINTS.md`.
-
-Changes to the skill itself, and the build findings that drove them, are logged
-in [CHANGELOG.md](CHANGELOG.md).
+Then append the build's row to `<workspace>/FINGERPRINTS.md`. Changes to the
+skill are tracked in [CHANGELOG.md](CHANGELOG.md).

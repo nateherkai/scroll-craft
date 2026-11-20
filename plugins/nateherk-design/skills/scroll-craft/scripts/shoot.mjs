@@ -18,18 +18,18 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { createRequire } from "node:module";
+import { fileURLToPath } from "node:url";
+import { findFfmpeg, findChrome, resolvePlaywright } from "./ffmpeg.mjs";
 
-// The skill lives outside the project it is building, so resolve playwright
-// from the BUILD project's node_modules (cwd), not from next to this file.
-// Run `npm i playwright-core` in the build project once.
-let chromium;
-try {
-  ({ chromium } = createRequire(path.join(process.cwd(), "package.json"))("playwright-core"));
-} catch {
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+// Resolve playwright-core from the build project's cwd first, then optional
+// SCROLLCRAFT_PLAYWRIGHT or skill directory fallback.
+const { mod: pwMod } = resolvePlaywright(process.cwd(), HERE);
+if (!pwMod) {
   console.error("playwright-core not found. Run this in the build project after:\n  npm i playwright-core");
   process.exit(1);
 }
+const { chromium } = pwMod;
 
 const argv = process.argv.slice(2);
 const arg = (n, d) => { const i = argv.indexOf(n); return i > -1 && argv[i + 1] ? argv[i + 1] : d; };
@@ -42,25 +42,7 @@ const W = parseInt(arg("--width", "1440"), 10);
 const H = parseInt(arg("--height", "900"), 10);
 const REDUCED = has("--reduced-motion");
 
-const CHROME = [
-  process.env.SCROLLCRAFT_CHROME,
-  // Windows
-  "C:/Program Files/Google/Chrome/Application/chrome.exe",
-  "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe",
-  "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
-  "C:/Program Files/Microsoft/Edge/Application/msedge.exe",
-  process.env.LOCALAPPDATA && `${process.env.LOCALAPPDATA}/Google/Chrome/Application/chrome.exe`,
-  // macOS
-  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-  "/Applications/Chromium.app/Contents/MacOS/Chromium",
-  "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
-  // Linux
-  "/usr/bin/google-chrome",
-  "/usr/bin/google-chrome-stable",
-  "/usr/bin/chromium",
-  "/usr/bin/chromium-browser",
-  "/snap/bin/chromium",
-].find((p) => p && fs.existsSync(p));
+const CHROME = findChrome();
 
 if (!CHROME) {
   console.error("No installed Chrome found. Set SCROLLCRAFT_CHROME to its path.");
@@ -628,18 +610,8 @@ await browser.close();
 
 // Contact sheet. The point of shooting contiguously is to look at the frames
 // side by side; a folder of 20 PNGs does not get looked at that way.
-const FFMPEG = [
-  process.env.SCROLLCRAFT_FFMPEG,
-  ...(fs.existsSync(path.join(process.env.HOME || "", "AppData/Local/Microsoft/WinGet/Packages"))
-    ? fs.readdirSync(path.join(process.env.HOME, "AppData/Local/Microsoft/WinGet/Packages"))
-        .filter((d) => d.startsWith("Gyan.FFmpeg"))
-        .flatMap((d) => {
-          const base = path.join(process.env.HOME, "AppData/Local/Microsoft/WinGet/Packages", d);
-          return fs.readdirSync(base).map((v) => path.join(base, v, "bin/ffmpeg.exe"));
-        })
-    : []),
-  "/usr/local/bin/ffmpeg", "/opt/homebrew/bin/ffmpeg", "ffmpeg",
-].find((p) => p && (p === "ffmpeg" || fs.existsSync(p)));
+const ff = findFfmpeg();
+const FFMPEG = ff.full ? ff.path : null;
 
 if (FFMPEG) {
   const cols = Math.min(5, report.length);
