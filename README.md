@@ -2,10 +2,11 @@
 
 **An agent skill for building premium, scroll-driven websites, with a real design standard.**
 
-Use it with Codex, Claude Code, or another coding agent that can read instructions,
-edit files, run commands, and inspect a browser. The skill contains the design
-workflow, references, engine, and verification tools. It also ships as a Claude
-Code plugin for convenient installation.
+Use it with Codex, Claude Code, Google Antigravity, Gemini CLI, or another coding
+agent that can read instructions, edit files, run commands, and inspect a browser.
+The skill contains the design workflow, references, engine, and verification tools.
+It ships with Claude Code, Antigravity, and Gemini CLI plugin manifests for
+convenient installation.
 
 Most AI website output fails in one of two directions. It is either well behaved and forgettable, or it is a flashy scroll animation with 2.1:1 body text, a headline that wraps to six lines on a phone, and the same six sections every other AI page has. scroll-craft is built to fail neither way: it treats **interaction** and **craft** as one job rather than two.
 
@@ -142,6 +143,17 @@ To hack on the skill without installing:
 claude --plugin-dir ./plugins/nateherk-design
 ```
 
+### Google Antigravity & Gemini CLI
+
+```bash
+agy plugin validate ./plugins/nateherk-design --strict --json
+agy plugin install ./plugins/nateherk-design
+```
+
+For Gemini CLI extension loading, Windows zero-Bash encoding (`scripts/encode.mjs`),
+and Squarespace 7.1 `/s/` packaging (`scripts/squarespace-pack.mjs`), see
+[docs/antigravity.md](docs/antigravity.md) and [docs/squarespace.md](docs/squarespace.md).
+
 ## First run
 
 From this repository's root, run:
@@ -192,11 +204,12 @@ plugins/nateherk-design/
     │   ├── worlds.md       art direction, and the style-preamble method
     │   ├── taste.md        the design floor: spacing, type, colour, depth, motion
     │   ├── assets.md       generation, camera moves, encoding for scrubbing
+    │   ├── squarespace.md  Squarespace 7.1 /s/ hosting, CORS fallback, and embed modes
     │   ├── verify.md       the harness, and what it cannot tell you
     │   └── template.html   a starting skeleton, not a layout
     ├── engine/             scrollcraft.js + .css. The mechanism, never edited per project
     ├── templates/          the empty registry a new workspace is seeded from
-    └── scripts/            doctor · workspace · kie · encode · serve · shoot · worldflight-assert
+    └── scripts/            doctor · workspace · kie · ffmpeg · encode · serve · shoot · squarespace-pack · worldflight-assert
 ```
 
 [`CHANGELOG.md`](plugins/nateherk-design/skills/scroll-craft/CHANGELOG.md) is worth reading on its own: it records what broke on each build and the rule that came out of it, rather than a feature list.

@@ -1,0 +1,30 @@
+{
+  "name": "nateherk-design",
+  "displayName": "Scroll Craft",
+  "version": "0.3.1",
+  "description": "Design and build skills from Nate Herk. Ships scroll-craft: premium scroll-driven interactive landing pages with dimensional hero layering, eight page grammars, cross-platform Node encoding, headless Chrome visual verification, and Squarespace /s/ packaging.",
+  "author": {
+    "name": "Nate Herk",
+    "url": "https://github.com/nateherkai"
+  },
+  "homepage": "https://github.com/nateherkai/scroll-craft",
+  "repository": "https://github.com/nateherkai/scroll-craft",
+  "license": "MIT",
+  "category": "Developer Tools",
+  "logo": "assets/icon.png",
+  "suggestedPrompts": [
+    "Use scroll-craft to build a scroll-driven landing page for my brand",
+    "Run scroll-craft preflight and verify my build across desktop, mobile, and reduced motion",
+    "Package my scroll-craft build for Squarespace (/s/ uploads + Code Injection)"
+  ],
+  "keywords": [
+    "scroll",
+    "scrollytelling",
+    "landing-page",
+    "frontend",
+    "animation",
+    "squarespace",
+    "video-scrub",
+    "design"
+  ]
+}

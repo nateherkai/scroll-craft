@@ -1,14 +1,15 @@
 # Assets
 
 Generation through kie.ai, then encoding for scrubbing. All of it via
-`scripts/kie.mjs` and `scripts/encode.sh`.
+`scripts/kie.mjs` and `scripts/encode.mjs` (cross-platform Node; `scripts/encode.sh` is kept for Unix/Bash).
 
 ```bash
 node <skill>/scripts/kie.mjs probe                     # credit check first
 node <skill>/scripts/kie.mjs still "<prompt>" out/01.png --ar 16:9 [--ref brand.png]
 node <skill>/scripts/kie.mjs shot  "<move>"   out/01.png out/01.mp4 --dur 5 [--tail end.png]
-bash  <skill>/scripts/encode.sh out/01.mp4 assets/01.mp4
-bash  <skill>/scripts/encode.sh out/01.mp4 assets/01-m.mp4 mobile
+node <skill>/scripts/encode.mjs out/01.mp4 assets/01.mp4 desktop --poster assets/01-poster.webp
+node <skill>/scripts/encode.mjs out/01.mp4 assets/01-m.mp4 mobile
+node <skill>/scripts/encode.mjs out/01.mp4 assets/01-p.mp4 portrait --crop-portrait
 ```
 
 Models: `seedream/5-pro-text-to-image` (and `-image-to-image` when you pass
@@ -57,18 +58,12 @@ video paints.
 ffmpeg -y -i out/01.mp4 -frames:v 1 -q:v 2 assets/01-poster.png
 ```
 
-**Use the same ffmpeg `encode.sh` resolved, not bare `ffmpeg`.** `encode.sh`
-goes looking for a full build precisely because the one on PATH may be stripped,
-but this poster line and the PSNR seam check below both call `ffmpeg` directly.
-On a stripped build the WebP muxer is missing and you get `Unable to choose an
-output format for 'poster.webp'`, which reads like a bad filename rather than a
-missing encoder, and `-lavfi psnr` fails with `No such filter: 'psnr'`. Resolve
-it once and reuse it:
-
-```bash
-FF=$(ls -d "$HOME"/AppData/Local/Microsoft/WinGet/Packages/Gyan.FFmpeg_*/ffmpeg-*-full_build/bin/ffmpeg.exe 2>/dev/null | head -1)
-"$FF" -y -i assets/01.mp4 -frames:v 1 -vf scale=1600:-2 -c:v libwebp -quality 82 assets/p01.webp
-```
+**Use `encode.mjs --poster` or the same full ffmpeg `encode.mjs` resolved, not bare `ffmpeg`.**
+`encode.mjs` resolves a full build (>200 filters, including WinGet `Gyan.FFmpeg`) precisely
+because the one on PATH may be stripped. On a stripped build the WebP muxer is missing and
+you get `Unable to choose an output format for 'poster.webp'`, and `-lavfi psnr` fails with
+`No such filter: 'psnr'`. Passing `--poster assets/p01.webp` to `encode.mjs` extracts frame 1
+using that verified full build automatically.
 
 ---
 
@@ -134,7 +129,7 @@ rimax=0.64:gimax=0.64:bimax=0.64,eq=saturation=1.08,fps=30,scale=1920:-2" \
   -c:v libx264 -crf 16 -an graded.mp4
 
 # 3. then the normal dense-GOP encode for scrubbing
-bash <skill>/scripts/encode.sh graded.mp4 assets/01.mp4
+node <skill>/scripts/encode.mjs graded.mp4 assets/01.mp4 desktop --poster assets/01-poster.webp
 ```
 
 Three more things real footage needs that generated clips do not:
@@ -211,8 +206,8 @@ it, for free and with no failure mode. Chain only when the brief is literally
 
 ## Encoding
 
-`encode.sh` sets a dense GOP (`-g 8` desktop, `-g 4` mobile), strips audio, and
-adds `+faststart`.
+`encode.mjs` sets a dense GOP (`-g 8` desktop, `-g 4` mobile/portrait), strips audio,
+adds `+faststart`, and warns if output exceeds Squarespace's 20 MB `/s/` limit.
 
 The reason is the whole trick: **a normal web encode places a keyframe every two
 to five seconds.** Seeking to an arbitrary time makes the decoder walk forward
@@ -266,13 +261,13 @@ Options, in order of cost:
 
    A portrait poster with a landscape clip (or the reverse) jumps visibly the
    moment the video paints, which is the whole failure the poster exists to
-   prevent. `encode.sh` has no portrait mode; do it by hand:
+   prevent. `encode.mjs` supports portrait encoding directly:
 
    ```bash
-   ffmpeg -y -i src.mp4 -vf "scale=720:-2" -c:v libx264 -crf 20 -g 4 \
-     -pix_fmt yuv420p -an -movflags +faststart assets/01-p.mp4
-   # cropping a 16:9 source to 9:16 instead of rendering native:
-   #   -vf "crop=ih*9/16:ih,scale=720:-2"
+   # native 9:16 source -> portrait mobile scrub clip + matching portrait poster
+   node <skill>/scripts/encode.mjs src-portrait.mp4 assets/01-p.mp4 portrait --poster assets/01-hero-p.webp
+   # cropping a 16:9 master to 9:16 portrait instead of rendering native:
+   node <skill>/scripts/encode.mjs src-16x9.mp4 assets/01-p.mp4 portrait --crop-portrait --poster assets/01-hero-p.webp
    ```
 3. **Drop the clip on phones.** Serve the poster and let the copy carry the act.
    Under reduced motion the engine already does exactly this, so the layout is
