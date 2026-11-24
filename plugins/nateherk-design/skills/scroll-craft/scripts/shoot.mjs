@@ -362,7 +362,7 @@ for (let i = 0; i < positions.length; i++) {
       el.setAttribute("data-sc-shot-fixed", "");
     });
   });
-  await page.addStyleTag({
+  const contrastStyle = await page.addStyleTag({
     content: "[data-sc-cue],[data-sc-cue] *,[data-sc-copy],[data-sc-copy] *," +
              "[data-sc-shot-fixed]{visibility:hidden!important}",
   });
@@ -447,9 +447,8 @@ for (let i = 0; i < positions.length; i++) {
     });
     return out;
   }, { b64: bare, dpr: 2 });
+  await contrastStyle.evaluate((style) => style.remove());
   await page.evaluate(() => {
-    const t = [...document.querySelectorAll("style")].pop();
-    if (t && t.textContent.includes("data-sc-cue")) t.remove();
     document.querySelectorAll("[data-sc-shot-fixed]").forEach((el) => el.removeAttribute("data-sc-shot-fixed"));
   });
 
