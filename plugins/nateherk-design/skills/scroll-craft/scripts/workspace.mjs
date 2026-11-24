@@ -49,11 +49,15 @@ export function resolveWorkspace(cwd = process.cwd()) {
     return fs.existsSync(p) ? p : null;
   });
   if (cfg) {
-    let parsed = {};
+    let parsed;
     try {
       parsed = JSON.parse(fs.readFileSync(cfg.hit, "utf8"));
     } catch (e) {
       throw new Error(`.scrollcraft.json is not valid JSON: ${cfg.hit}\n  ${e.message}`);
+    }
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)
+      || ("workspace" in parsed && (typeof parsed.workspace !== "string" || !parsed.workspace.trim()))) {
+      throw new Error(`Invalid .scrollcraft.json at ${cfg.hit}: expected a JSON object with an optional non-empty string "workspace".`);
     }
     if (parsed.workspace) {
       return { root: path.resolve(cfg.dir, parsed.workspace), via: cfg.hit };
