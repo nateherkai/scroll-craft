@@ -207,8 +207,11 @@
   // Wraps each unit in a masked span so the reveal can slide from behind a clean
   // edge instead of just fading. Lines are measured after layout, so this must
   // run once fonts are ready or the line boxes are wrong.
-  function splitText(el, mode) {
-    if (el.__scSplit) return el.__scSplit;
+  function splitText(el, mode, remeasure) {
+    if (el.__scSplit && !remeasure) return el.__scSplit;
+    // Author markup can include headings, links, or other semantic children.
+    // Only replace plain text and masks already produced by the engine.
+    if (el.children.length && !el.__scSplit) return [];
     var text = el.textContent;
     var units = [];
 
@@ -941,8 +944,8 @@
           }
           vis = clamp01(vis);
 
-          if (q.kinetic) {
-            if (!q.units) q.units = splitText(q.el, q.kinetic);
+          if (q.kinetic && !q.units) q.units = splitText(q.el, q.kinetic);
+          if (q.units && q.units.length) {
             var n = q.units.length;
             // Stagger across the reveal window. 0.62 spread leaves the tail of
             // the window for the last unit to finish, so the line lands together
@@ -1225,7 +1228,13 @@
       // Line splitting measures line boxes, so it has to wait for the real face.
       document.fonts.ready.then(function () {
         if (scDead) return;
-        acts.forEach(function (a) { a.cues.forEach(function (q) { if (q.kinetic && q.units) { q.el.__scSplit = null; q.units = null; } }); });
+        acts.forEach(function (a) {
+          a.cues.forEach(function (q) {
+            if (q.kinetic === 'lines' && q.units && q.units.length) {
+              q.units = splitText(q.el, q.kinetic, true);
+            }
+          });
+        });
         layout();
       });
     }
