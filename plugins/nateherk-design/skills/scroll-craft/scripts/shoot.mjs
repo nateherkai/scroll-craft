@@ -257,7 +257,7 @@ for (let i = 0; i < positions.length; i++) {
     // A worldflight's copy blocks are windowed against the whole track rather
     // than an act's progress, but they are the same thing to a reader: type that
     // has to arrive, hold, and leave. Grade them identically.
-    document.querySelectorAll("[data-sc-cue],[data-sc-copy]").forEach((el) => {
+    document.querySelectorAll("[data-sc-cue],[data-sc-copy]").forEach((el, index) => {
       const o = cueOpacity(el);
       if (o <= 0.02) return;
       // On screen, not merely non-transparent. An element parked off-viewport
@@ -265,7 +265,7 @@ for (let i = 0; i < positions.length; i++) {
       // findings that send you chasing a bug the reader never sees.
       const r = el.getBoundingClientRect();
       if (r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > innerWidth) return;
-      vis.push({ t: (el.textContent || "").trim().replace(/\s+/g, " ").slice(0, 46), o: +o.toFixed(2) });
+      vis.push({ index, t: (el.textContent || "").trim().replace(/\s+/g, " ").slice(0, 46), o: +o.toFixed(2) });
     });
     const clips = [...document.querySelectorAll("video[data-sc-scrub]")].map((v) => ({
       // A continuous world legitimately keeps its clip chain outside the act
@@ -605,10 +605,16 @@ if (WORLD) {
 // Cues that never reach full strength anywhere on the page. A headline peaking
 // at 0.6 is a mis-set cue window, and it is invisible as a bug because the
 // element IS there, just never quite arriving.
-const peak = {};
-report.forEach((s) => s.cues.forEach((c) => { peak[c.t] = Math.max(peak[c.t] || 0, c.o); }));
-const weak = Object.entries(peak).filter(([, o]) => o < 0.8);
-if (weak.length) console.log("\nCUES THAT NEVER PEAK:\n  " + weak.map(([t, o]) => `${o} "${t}"`).join("\n  "));
+const peaks = new Map();
+for (const sample of report) {
+  for (const cue of sample.cues) {
+    const peak = peaks.get(cue.index);
+    if (!peak || cue.o > peak.o) peaks.set(cue.index, cue);
+  }
+}
+const weak = [...peaks.values()].filter((cue) => cue.o < 0.8);
+if (weak.length) console.log("\nCUES THAT NEVER PEAK:\n  " +
+  weak.map(({ index, t, o }) => `${o} "${t}" (cue ${index + 1})`).join("\n  "));
 
 // Contrast over media, graded at the worst frame each line is ever shown on.
 const worstBy = {};
