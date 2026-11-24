@@ -58,6 +58,8 @@ const browser = await chromium.launch({ executablePath: CHROME, headless: true }
     const total = segs.reduce((s, el) => s + (parseFloat(el.dataset.scW) || 1.3), 0);
     const spacer = document.querySelector("[data-sc-spacer]");
     const stage = document.querySelector("[data-sc-world]");
+    const configuredSeam = parseFloat(document.querySelector('[data-sc-mode="worldflight"]').dataset.scSeam);
+    const seam = configuredSeam > 0 ? Math.max(0.02, Math.min(0.4, configuredSeam)) : 0.12;
     return {
       vh: innerHeight, total,
       weights: segs.map((el) => parseFloat(el.dataset.scW) || 1.3),
@@ -67,7 +69,7 @@ const browser = await chromium.launch({ executablePath: CHROME, headless: true }
       stagePos: getComputedStyle(stage).position,
       stageRect: (({ top, left, width, height }) => ({ top, left, width, height }))(stage.getBoundingClientRect()),
       copyPos: getComputedStyle(document.querySelector("[data-sc-world-copy]")).position,
-      seam: parseFloat(document.querySelector('[data-sc-mode="worldflight"]').dataset.scSeam),
+      seam,
     };
   });
   console.log(`\nDESKTOP  vh=${geom.vh}  weights=[${geom.weights}]  total=${geom.total}vh`);
@@ -146,7 +148,9 @@ const browser = await chromium.launch({ executablePath: CHROME, headless: true }
   const half = (geom.seam / 2) * geom.vh;
   const band = [];
   for (let i = 0; i < 5; i++) {
-    const y = Math.round(boundary - half + (2 * half) * (i / 4));
+    const sample = boundary - half + (2 * half) * (i / 4);
+    // The ends must be outside the band even when its edges fall between pixels.
+    const y = i === 0 ? Math.floor(sample) : i === 4 ? Math.ceil(sample) : Math.round(sample);
     await page.evaluate((y) => scrollTo({ top: y, behavior: "instant" }), y);
     await page.waitForTimeout(120);
     band.push(await page.evaluate(() => {
