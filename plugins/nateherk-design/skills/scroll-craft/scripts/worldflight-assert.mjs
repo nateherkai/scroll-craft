@@ -106,7 +106,10 @@ const browser = await chromium.launch({ executablePath: CHROME, headless: true }
 
   const trace = await page.evaluate(({ y }) => new Promise((res) => {
     const v = document.querySelectorAll("[data-sc-segment] video")[0];
-    const clip = window.__sc.clips.find((c) => c.el === v);
+    const instances = window.ScrollCraft?.instances || [];
+    const clip = instances.flatMap((instance) => instance.clips || []).find((c) => c.el === v)
+      || window.__sc?.clips?.find((c) => c.el === v);
+    if (!clip) throw new Error("No mounted ScrollCraft playhead for the first worldflight leg.");
     const s = [];
     scrollTo({ top: y, behavior: "instant" });
     let n = 0;
