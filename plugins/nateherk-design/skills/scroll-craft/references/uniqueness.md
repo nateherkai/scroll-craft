@@ -150,17 +150,13 @@ cannot actually compute, the grammar is unavailable. Pick another.
 One canvas, fixed for the entire scroll, and the page travels through it.
 Waypoints, not sections.
 
-> **This grammar REQUIRES worldflight mode.** `data-sc-mode="worldflight"`, one
-> fixed stage, one spacer, legs that crossfade. See references/worldflight.md.
+> Keep one fixed stage and one spacer. Use [video worldflight](worldflight.md)
+> for footage, or drive a single Canvas or WebGL scene from scroll progress
+> when the world is drawn in code. Both routes keep copy inside the stage,
+> use a map for navigation, and move through the same space from start to end.
 >
-> Building it out of pinned acts is not a lesser version of this grammar, it is
-> a different and worse page, and it has already been tried. The owner's verdict
-> on the act-based attempt: "awful... you're literally going from scrolling down
-> to static page and then you start scrolling down again... weird clear page
-> lines scrolling up... very cheap looking." Every one of those is the same
-> defect. A pinned act is a block in the document; a document made of blocks has
-> seams; and a world with seams is not a world. Do not reach for `scrub` acts
-> here, however long you make the spans.
+> Pinned acts introduce document seams as their blocks enter and leave. Keep
+> section blocks and secondary stages out of the enhanced experience.
 
 **Fits:** a journey with real geography. A supply chain, a process with physical
 stages, a place, a build, anything where "where you are" is meaningful.
@@ -180,14 +176,18 @@ is a video. The hero is an establishing position inside the world, not a
 separate title stage. The close is arrival at a place in the same canvas, and
 the CTA is an object in that place.
 
-**Leans on:** worldflight legs with `data-sc-linger`, copy windows against the
-whole track, the `sc:waypoint` event driving a rail the page draws itself.
-**Bans:** every act device, `flow`, `pan`, hard cuts, `src` swapping.
+**Implementation:** the video route uses worldflight legs with
+`data-sc-linger`, copy windows and `sc:waypoint`. The drawn route defines its
+own scene positions and maps each waypoint to a scroll offset. Keep the map
+keyboard-operable and use semantic HTML for copy and actions. Use the same
+opening, midpoint, waypoint, and ending checks in desktop and mobile browser
+views. For a drawn stage, capture those positions directly unless the
+verification harness is configured to sample the custom scene; the video
+worldflight assertions expect video legs.
 
-**This is the expensive one.** The chain warning in SKILL.md applies: a single
-unbroken flight is the most fragile thing you can build, and the seam law in
-worldflight.md section 6 is not optional. Choose this grammar only when the
-brief is literally about travel through a place, and budget for the reroll.
+**Bans:** every act device, hard cuts, and source swapping during a transition.
+The video route also needs the seam and budget checks in [worldflight.md](worldflight.md).
+Choose this grammar when travel through a place is part of the brief.
 
 ---
 

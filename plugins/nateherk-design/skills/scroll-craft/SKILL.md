@@ -120,8 +120,8 @@ Keep it short. Eight questions, asked in one pass:
    retro, dense, editorial, premium-minimal. Their answer governs the aesthetic
    family, not your taste.
 7. **One unbroken world, or distinct scenes?** Should the whole page feel like
-   one continuous place the scroll flies through (worldflight, see
-   [references/worldflight.md](references/worldflight.md)), or like separate
+   one continuous place the scroll flies through (see the
+   [continuous world grammar](references/uniqueness.md#24-continuous-world)), or like separate
    scenes, chapters, or cuts? This is the single biggest structural fork, and it
    is their call, not a device you pick later. Offer both plainly; neither is
    the default.
@@ -205,9 +205,14 @@ project root pointing at it and nothing moves.
    obey its hard rules. A brand that forbids invented numbers means no stat
    counters, however good they look.
 
-Copy `engine/scrollcraft.js` and `engine/scrollcraft.css` into the build folder.
-Never edit the engine per-project; it is the mechanism. Theme it with tokens and
-write your own markup.
+Copy `engine/scrollcraft.js` and `engine/scrollcraft.css` into the build folder
+when using Scroll Craft's act devices or video worldflight. Theme the engine
+with tokens and write your own markup. A code-drawn continuous world can use
+its own renderer and scroll controller. In an existing framework, map any
+`--sc-*` tokens you use to the host's design tokens. Start with readable
+semantic content in normal flow and enable the fixed stage and spacer once
+the renderer is ready. Keep the same content and actions usable if scripts
+fail or reduced motion is enabled.
 
 ## Step 1: The brief, journey first
 
