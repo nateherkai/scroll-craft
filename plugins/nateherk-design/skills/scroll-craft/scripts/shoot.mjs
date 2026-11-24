@@ -647,7 +647,8 @@ if (FFMPEG) {
   const { spawnSync } = await import("node:child_process");
   const r = spawnSync(FFMPEG, [
     "-y", "-v", "error", "-i", path.join(OUT, "%02d.png"),
-    "-vf", `scale=520:-1,tile=${cols}x${rows}`, "-frames:v", "1",
+    // A partially filled tile must not consume frames from an older, longer run.
+    "-vf", `scale=520:-1,tile=${cols}x${rows}:nb_frames=${report.length}`, "-frames:v", "1",
     path.join(OUT, "sheet.png"),
   ]);
   if (r.status === 0) console.log(`contact sheet: ${path.join(OUT, "sheet.png")}`);
