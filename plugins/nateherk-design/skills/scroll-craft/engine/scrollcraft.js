@@ -997,6 +997,7 @@
       }
 
       for (var w = 0; w < worlds.length; w++) readWorld(worlds[w]);
+      wakeTick();
 
       // background drift
       for (var d = 0; d < drifts.length; d++) {
@@ -1022,8 +1023,14 @@
     // Split from read() on purpose: seeking is asynchronous and rate-limited by
     // the decoder, while read() must stay cheap enough to run on every scroll
     // event. The lerp here is also what turns a jittery wheel into a glide.
+    function wakeTick() {
+      if (scDead || scTickFrame || !playheads.some(function (V) { return V.ready; })) return;
+      scTickFrame = requestAnimationFrame(tick);
+    }
     function tick() {
+      scTickFrame = 0;
       if (scDead) return;
+      var busy = false;
       // Deadband. A phone decoder cannot service a seek every frame, so asking
       // for one costs more than it shows; 20ms of clip is under a frame of
       // footage anyway.
@@ -1037,6 +1044,7 @@
         // the page through this very guard, so a seek stuck past 700ms is
         // re-issued rather than waited on forever.
         if (V.el.seeking) {
+          busy = true;
           var nw = performance.now();
           if (!V.stuckAt) V.stuckAt = nw;
           else if (nw - V.stuckAt > 700) {
@@ -1046,14 +1054,20 @@
           continue;
         }
         V.stuckAt = 0;
-        // An offscreen clip that has already arrived stops costing anything.
-        if (!V.live && Math.abs(V.cur - V.target) < 0.002) continue;
         V.cur += (V.target - V.cur) * (reduce ? 1 : V.lerp);
         var dur = V.el.duration || 1;
         var t = clamp(V.cur, 0, 0.999) * dur;
-        if (Math.abs(V.el.currentTime - t) > eps) { try { V.el.currentTime = t; } catch (e) {} }
+        if (Math.abs(V.el.currentTime - t) > eps) {
+          try { V.el.currentTime = t; } catch (e) {}
+        }
+        var targetTime = clamp(V.target, 0, 0.999) * dur;
+        // The decoder's deadband is measured in seconds, while the
+        // verification harness waits for normalized playhead convergence.
+        if (V.el.seeking || Math.abs(V.cur - V.target) >= 0.002 ||
+            Math.abs(targetTime - t) > eps ||
+            Math.abs(V.el.currentTime - targetTime) > eps) busy = true;
       }
-      scTickFrame = requestAnimationFrame(tick);
+      if (busy) scTickFrame = requestAnimationFrame(tick);
     }
 
     // iOS will not paint a muted video that has never been handed a user
@@ -1090,6 +1104,7 @@
           V.cur = clamp(V.cur, 0, 0.999);
           V.el.currentTime = clamp(V.cur * dur + 0.05, 0, dur * 0.999);
         } catch (e) {}
+        wakeTick();
       };
       var fail = function () { V.priming = false; };
       // A play() promise is allowed to stay pending forever (iOS does this to a
@@ -1232,7 +1247,6 @@
 
     layout();
     initPointer();
-    scTickFrame = requestAnimationFrame(tick);
     document.documentElement.classList.add('sc-ready');
 
     var api = { layout: layout, read: read, acts: acts, worlds: worlds, clips: playheads, lerp: LERP };
