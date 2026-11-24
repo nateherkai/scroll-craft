@@ -59,6 +59,25 @@ const H = { "Content-Type": "application/json", Authorization: `Bearer ${KEY}` }
 
 // ------------------------------------------------------------- helpers ----
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const JSON_REQUEST_TIMEOUT_MS = 30_000;
+
+async function requestJson(url, operation, options, timeoutMs = JSON_REQUEST_TIMEOUT_MS) {
+  const signal = AbortSignal.timeout(timeoutMs);
+  let body;
+  try {
+    const response = await fetch(url, { ...options, signal });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    body = await response.json();
+  } catch (err) {
+    const reason = signal.aborted ? "request timed out" : err.message;
+    throw new Error(`${operation}: ${reason}`);
+  }
+  if (body?.code != null && body.code !== 200) {
+    const message = body.msg || body.message;
+    throw new Error(`${operation}: API error ${body.code}${message ? ` (${message})` : ""}`);
+  }
+  return body;
+}
 
 async function uploadLocal(file) {
   const abs = path.resolve(file);
@@ -66,11 +85,10 @@ async function uploadLocal(file) {
   const ext = path.extname(abs).slice(1).toLowerCase();
   const mime = ext === "jpg" ? "image/jpeg" : `image/${ext}`;
   const dataUrl = `data:${mime};base64,${fs.readFileSync(abs).toString("base64")}`;
-  const res = await fetch(UPLOAD, {
+  const j = await requestJson(UPLOAD, "upload", {
     method: "POST", headers: H,
     body: JSON.stringify({ base64Data: dataUrl, uploadPath: "scrollcraft", fileName: path.basename(abs) }),
   });
-  const j = await res.json();
   const url = j?.data?.downloadUrl || j?.data?.fileUrl || j?.data?.url;
   if (!url) throw new Error("upload failed: " + JSON.stringify(j));
   return url;
@@ -80,11 +98,10 @@ async function uploadLocal(file) {
 const asUrl = (v) => (/^https?:\/\//i.test(v) ? Promise.resolve(v) : uploadLocal(v));
 
 async function createTask(model, input) {
-  const res = await fetch(`${API}/api/v1/jobs/createTask`, {
+  const j = await requestJson(`${API}/api/v1/jobs/createTask`, `createTask ${model}`, {
     method: "POST", headers: H, body: JSON.stringify({ model, input }),
   });
-  const j = await res.json();
-  if (j.code !== 200 || !j?.data?.taskId) throw new Error(`createTask ${model}: ${JSON.stringify(j)}`);
+  if (j?.code !== 200 || !j?.data?.taskId) throw new Error(`createTask ${model}: missing task id`);
   return j.data.taskId;
 }
 
@@ -92,9 +109,14 @@ async function waitTask(taskId, { label = "job", timeoutMs = 15 * 60 * 1000 } = 
   const t0 = Date.now();
   let delay = 4000;
   for (;;) {
-    if (Date.now() - t0 > timeoutMs) throw new Error(`${label}: timed out after ${Math.round((Date.now() - t0) / 1000)}s`);
-    const res = await fetch(`${API}/api/v1/jobs/recordInfo?taskId=${encodeURIComponent(taskId)}`, { headers: H });
-    const j = await res.json();
+    const timeLeft = timeoutMs - (Date.now() - t0);
+    if (timeLeft <= 0) throw new Error(`${label}: timed out after ${Math.round(timeoutMs / 1000)}s`);
+    const j = await requestJson(
+      `${API}/api/v1/jobs/recordInfo?taskId=${encodeURIComponent(taskId)}`,
+      `${label} status`,
+      { headers: H },
+      Math.min(timeLeft, JSON_REQUEST_TIMEOUT_MS),
+    );
     const d = j?.data || {};
     const state = d.state || d.status;
     if (state === "success") {
@@ -108,7 +130,8 @@ async function waitTask(taskId, { label = "job", timeoutMs = 15 * 60 * 1000 } = 
       throw new Error(`${label} failed: ${d.failMsg || d.failCode || JSON.stringify(d)}`);
     }
     process.stderr.write(`  ${label}: ${state || "queued"} (${Math.round((Date.now() - t0) / 1000)}s)\n`);
-    await sleep(delay);
+    const wait = Math.min(delay, timeoutMs - (Date.now() - t0));
+    if (wait > 0) await sleep(wait);
     delay = Math.min(delay * 1.25, 15000);
   }
 }
@@ -136,8 +159,8 @@ const [cmd, ...rest] = process.argv.slice(2);
 
 try {
   if (cmd === "probe") {
-    const r = await fetch(`${API}/api/v1/chat/credit`, { headers: H });
-    const j = await r.json();
+    const j = await requestJson(`${API}/api/v1/chat/credit`, "credit check", { headers: H });
+    if (j?.data == null) throw new Error("credit check: missing balance");
     console.log("credit:", j.data);
 
   } else if (cmd === "still") {
