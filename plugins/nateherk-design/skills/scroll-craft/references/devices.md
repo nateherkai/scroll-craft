@@ -27,8 +27,8 @@ so spend it on the open.
            data-sc-src-mobile="assets/01-m.mp4" playsinline muted></video>
     <div class="sc-scrim"></div>
 
-    <div class="sc-copy sc-copy--lead" data-sc-cue="0.08 0.62 0.34">
-      <h1 class="sc-display sc-display--xl" data-sc-kinetic="lines">
+    <div class="sc-copy sc-copy--lead">
+      <h1 class="sc-display sc-display--xl" data-sc-cue="0.08 0.62 0.34" data-sc-kinetic="lines">
         Your morning shouldn't need two drinks.
       </h1>
     </div>
@@ -288,7 +288,7 @@ audit catches this; only a rendered screenshot does.
 ## 5. `kinetic`: type that assembles
 
 Splits a heading into lines, words or characters and staggers them across the
-cue window. Lines are almost always right; words for a short punch line;
+cue window. Put both attributes on the same text element. Lines are almost always right; words for a short punch line;
 characters approximately never, because it turns reading into waiting.
 
 ```html
