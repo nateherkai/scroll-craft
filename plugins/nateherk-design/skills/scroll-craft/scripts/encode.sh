@@ -46,8 +46,17 @@ pick_ffmpeg() {
   return 1
 }
 FFMPEG="$(pick_ffmpeg)"
-FFPROBE="$(dirname "$FFMPEG")/ffprobe"
-[ -x "$FFPROBE" ] || FFPROBE="$(command -v ffprobe)"
+FFMPEG_DIR="$(dirname "$FFMPEG")"
+FFPROBE="$FFMPEG_DIR/ffprobe"
+if [[ "$FFMPEG" == *.exe ]] && [ -x "$FFMPEG_DIR/ffprobe.exe" ]; then
+  FFPROBE="$FFMPEG_DIR/ffprobe.exe"
+elif [ ! -x "$FFPROBE" ]; then
+  FFPROBE="$(command -v ffprobe || command -v ffprobe.exe || true)"
+fi
+if [ -z "$FFPROBE" ]; then
+  echo "ERROR: ffprobe not found next to $FFMPEG or on PATH." >&2
+  exit 1
+fi
 
 IN="${1:?usage: encode.sh <in> <out> [mobile|desktop] [crf]}"
 OUT="${2:?usage: encode.sh <in> <out> [mobile|desktop] [crf]}"
