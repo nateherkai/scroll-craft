@@ -24,6 +24,27 @@
 # is dead weight plus an autoplay-policy hazard.
 set -euo pipefail
 
+if [ "$#" -lt 2 ] || [ "$#" -gt 4 ]; then
+  echo "usage: encode.sh <in> <out> [mobile|desktop] [crf]" >&2
+  exit 1
+fi
+IN="${1:?input path is required}"
+OUT="${2:?output path is required}"
+MODE="${3:-desktop}"
+
+case "$MODE" in
+  mobile)  SCALE="scale=-2:720"; GOP=4; CRF=24 ;;
+  desktop) SCALE="scale=-2:1080"; GOP=8; CRF=20 ;;
+  *) echo "ERROR: mode must be mobile or desktop, got '$MODE'" >&2; exit 1 ;;
+esac
+
+# Positional beats env var beats the mode default. libx264 uses CRF 0–51.
+CRF="${4:-${SCROLLCRAFT_CRF:-$CRF}}"
+if ! [[ "$CRF" =~ ^0*([0-9]|[1-4][0-9]|5[01])$ ]]; then
+  echo "ERROR: crf must be an integer from 0 to 51, got '$CRF'" >&2
+  exit 1
+fi
+
 # Resolve a FULL ffmpeg build. Several toolchains (Remotion, some Electron apps)
 # put a stripped ffmpeg on PATH that carries maybe 50 filters and silently lacks
 # scale/fps/tile. It fails with "No option name near ..." on any filter chain,
@@ -48,22 +69,6 @@ pick_ffmpeg() {
 FFMPEG="$(pick_ffmpeg)"
 FFPROBE="$(dirname "$FFMPEG")/ffprobe"
 [ -x "$FFPROBE" ] || FFPROBE="$(command -v ffprobe)"
-
-IN="${1:?usage: encode.sh <in> <out> [mobile|desktop] [crf]}"
-OUT="${2:?usage: encode.sh <in> <out> [mobile|desktop] [crf]}"
-MODE="${3:-desktop}"
-
-if [ "$MODE" = "mobile" ]; then
-  SCALE="scale=-2:720"; GOP=4; CRF=24
-else
-  SCALE="scale=-2:1080"; GOP=8; CRF=20
-fi
-
-# Positional beats env var beats the mode default.
-CRF="${4:-${SCROLLCRAFT_CRF:-$CRF}}"
-case "$CRF" in
-  ''|*[!0-9]*) echo "ERROR: crf must be an integer, got '$CRF'" >&2; exit 1 ;;
-esac
 
 mkdir -p "$(dirname "$OUT")"
 
