@@ -95,7 +95,7 @@ try {
 } catch {
   try {
     createRequire(path.join(HERE, "package.json"))("playwright-core");
-    pw = true; pwWhere = "resolves from the skill, but NOT from cwd";
+    pwWhere = "installed in the skill, but not available from cwd";
   } catch { pwWhere = "not installed"; }
 }
 add("verify", "playwright-core", pw, pwWhere,
