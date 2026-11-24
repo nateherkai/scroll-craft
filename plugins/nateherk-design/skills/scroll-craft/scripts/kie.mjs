@@ -121,30 +121,43 @@ async function download(url, out) {
   return out;
 }
 
-function flag(argv, name, dflt = null) {
-  const i = argv.indexOf(name);
-  return i > -1 && argv[i + 1] ? argv[i + 1] : dflt;
-}
-function flags(argv, name) {
-  const out = [];
-  argv.forEach((a, i) => { if (a === name && argv[i + 1]) out.push(argv[i + 1]); });
-  return out;
+function parseOptions(argv, names, repeatable) {
+  const options = new Map();
+  for (let i = 0; i < argv.length; i += 2) {
+    const name = argv[i];
+    if (!names.includes(name)) throw new Error(`unknown option: ${name}`);
+    const value = argv[i + 1];
+    if (!value || value.startsWith("--")) throw new Error(`missing value for ${name}`);
+    if (name === repeatable) {
+      if (!options.has(name)) options.set(name, []);
+      options.get(name).push(value);
+    } else {
+      if (options.has(name)) throw new Error(`duplicate option: ${name}`);
+      options.set(name, value);
+    }
+  }
+  return options;
 }
 
 // ---------------------------------------------------------------- main ----
 const [cmd, ...rest] = process.argv.slice(2);
 
 try {
+  if (cmd === "probe" && rest.length) parseOptions(rest, []);
+
   if (cmd === "probe") {
     const r = await fetch(`${API}/api/v1/chat/credit`, { headers: H });
     const j = await r.json();
     console.log("credit:", j.data);
 
   } else if (cmd === "still") {
-    const [prompt, out] = rest;
-    if (!prompt || !out) throw new Error('usage: kie.mjs still "<prompt>" <out.png> [--ar 16:9] [--ref a.png]');
-    const ar = flag(rest, "--ar", "16:9");
-    const refs = flags(rest, "--ref");
+    const [prompt, out, ...args] = rest;
+    if (!prompt || !out || out.startsWith("--")) {
+      throw new Error('usage: kie.mjs still "<prompt>" <out.png> [--ar 16:9] [--ref a.png]');
+    }
+    const options = parseOptions(args, ["--ar", "--ref", "--quality"], "--ref");
+    const ar = options.get("--ar") ?? "16:9";
+    const refs = options.get("--ref") ?? [];
     let model = MODELS.still;
     // aspect_ratio, quality and output_format are all required by seedream;
     // omitting any one returns a bare "This field is required" that does not
@@ -152,7 +165,7 @@ try {
     const input = {
       prompt,
       aspect_ratio: ar,
-      quality: flag(rest, "--quality", "high"),
+      quality: options.get("--quality") ?? "high",
       output_format: "png",
       nsfw_checker: false,
     };
@@ -166,12 +179,13 @@ try {
     console.log(out);
 
   } else if (cmd === "shot") {
-    const [prompt, head, out] = rest;
-    if (!prompt || !head || !out) {
+    const [prompt, head, out, ...args] = rest;
+    if (!prompt || !head || !out || head.startsWith("--") || out.startsWith("--")) {
       throw new Error('usage: kie.mjs shot "<prompt>" <head.png> <out.mp4> [--tail b.png] [--dur 5]');
     }
-    const dur = flag(rest, "--dur", "5");
-    const tail = flag(rest, "--tail");
+    const options = parseOptions(args, ["--dur", "--tail"]);
+    const dur = options.get("--dur") ?? "5";
+    const tail = options.get("--tail");
     const input = {
       prompt,
       image_url: await asUrl(head),
