@@ -1013,8 +1013,7 @@
       }
 
       if (progressBar) {
-        var max = Math.max(document.body.scrollHeight - vh, 1);
-        progressBar.style.transform = 'scaleX(' + clamp01(y / max).toFixed(4) + ')';
+        progressBar.style.transform = 'scaleX(' + clamp01(y / maxY).toFixed(4) + ')';
       }
     }
 
