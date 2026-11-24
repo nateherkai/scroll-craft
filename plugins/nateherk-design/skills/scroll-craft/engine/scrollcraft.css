@@ -262,10 +262,9 @@ video[data-sc-scrub] { opacity: 0; transition: opacity 380ms var(--sc-ease-out);
 .sc-copy--center { inset-inline: auto; left: 50%; top: 50%; translate: -50% -50%; text-align: center; }
 .sc-copy--trail  { inset-inline: auto; right: var(--sc-gutter); bottom: clamp(3rem, 12vh, 9rem); text-align: right; }
 
-/* cue defaults: the engine writes opacity/transform inline, these are the
-   pre-paint state so nothing flashes before the first read() */
-[data-sc-cue] { opacity: 0; will-change: opacity, transform; }
-.sc-ready [data-sc-cue] { transition: none; }
+/* Keep cue text readable before the engine mounts or if it never loads.
+   The first read() sets the mounted cue's opacity and transform inline. */
+.sc-ready [data-sc-cue] { will-change: opacity, transform; transition: none; }
 
 /* kinetic split */
 .sc-split { display: inline-block; overflow: hidden; vertical-align: top; }
