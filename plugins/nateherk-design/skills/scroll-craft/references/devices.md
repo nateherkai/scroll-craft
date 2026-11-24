@@ -329,7 +329,9 @@ viewport-heights of scroll, which is invisible: usable values are roughly 0.3 to
 1.5 for a layer inside a frame and 1 to 2 for a full-bleed bed.
 
 Negative moves up faster than the scroll, which pushes an element back. Three
-layers is plenty; five is a diorama.
+planes are often enough for a small layer group inside one section. For a
+full opening hero, use the [hero depth plan](hero-depth.md#plan-the-depth-before-generating-assets)
+to decide which near, middle, and far planes the image needs.
 
 Never put body copy on a parallax layer. Text the reader is trying to read
 should not move relative to the thing they are reading it against.

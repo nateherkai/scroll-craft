@@ -8,7 +8,8 @@ This preference applies to the hero, not to every section of every website. Pres
 
 ## Plan the depth before generating assets
 
-- Identify the background, focal subject, foreground, and any natural atmospheric layers. Name what moves independently, what overlaps, and what must stay physically connected.
+- Plan the hero back to front before generating assets. For a rich opening scene, start with about five candidate planes, such as a far plate, distant atmosphere, midground or subject, near ground, and foreground detail. Keep only the planes that help the composition.
+- List each plane with a relative depth from far to near and its intended motion, size, or focus. Check that the middle has a visible step between the far backdrop and foreground. Spread the motion and scale cues across that range, and keep planes that share a physical anchor moving together.
 - Give the visitor a clear visual payoff during a short scroll sequence. For example: the camera moves into a scene, the headline recedes behind a subject, a second narrative beat appears, and the scene settles into the next section.
 - Choose the sequence for the brand. The Sonder mountains, red dress, five planes, second headline, and gallery-frame exit are an example, not a mandatory template.
 - Layering must change perceived depth. Several stacked elements moving as one image do not meet this preference. Use visibly different translation or scale rates, occlusion, and near/far relationships.
@@ -44,7 +45,7 @@ Do not merely shrink the desktop composition. Adjust crop, subject position, con
 
 Use the verification tools and permissions applicable to the build. Inspect the actual opening, an intermediate scroll position, the final hero transition, and the mobile composition. Check:
 
-- Distinct layers visibly move at different rates.
+- Distinct layers visibly move at different rates, with clear separation between the far, middle, and near planes.
 - No duplicate subjects, holes, cutout halos, floating contact points, or abrupt seams appear.
 - The opening headline is readable, and the scroll produces a clear change in what the visitor sees or understands.
 - The scene resolves cleanly into the next section.
