@@ -1,5 +1,9 @@
 # Worldflight: the continuous-world page mode
 
+This is the video implementation of the
+[continuous world grammar](uniqueness.md#24-continuous-world). A code-drawn
+stage uses the same spatial and navigation rules with its own renderer.
+
 Act mode cuts the page into pinned blocks. That is the right shape for a page of
 chapters and the wrong shape for one unbroken camera move, and building a
 continuous world out of acts produces exactly the page an owner described as
