@@ -90,7 +90,16 @@ export function ensure(cwd = process.cwd()) {
 }
 
 // ------------------------------------------------------------------- cli ----
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))) {
+function isMainModule() {
+  if (!process.argv[1]) return false;
+  try {
+    return fs.realpathSync(process.argv[1]) === fs.realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    return false;
+  }
+}
+
+if (isMainModule()) {
   const argv = process.argv.slice(2);
   const p = argv.includes("--ensure") ? ensure() : paths();
   if (argv.includes("--json")) {
